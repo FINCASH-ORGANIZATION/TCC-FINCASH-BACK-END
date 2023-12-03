@@ -1,11 +1,10 @@
-const express = require('express')
-const app = express()
-const port = 3000
+const express = require('express');
+const usuarioRota = require('./src/routes/usuario.route');
+const app = express();
+const port = 3000;
 
-app.get('/Usuario', (req, res) => {
-  res.send('oi!')
-})
+app.use("/soma", usuarioRota);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+    console.log(`A porta esta aberta em: ${port}`)
+});
