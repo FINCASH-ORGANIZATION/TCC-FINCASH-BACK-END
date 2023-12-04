@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//RESPONSAVEL PELA CONEXÃO COM O BANCO DE DADOS
 const connectDatabase = () => {
     console.log('Esperando a conexão com a database')
 
@@ -8,4 +9,5 @@ const connectDatabase = () => {
     ).then(() => console.log("Banco de dados conectado")).catch((error) => console.log("Banco de dados NÃO conectado"));
 };
 
+//EXPORTA A VARIAVEL QUE ARMAZENA A CONEXÃO "connectDatabase" PARA O INDEX.JS, ONDE A MESMA É EXECUTADA
 module.exports = connectDatabase;
