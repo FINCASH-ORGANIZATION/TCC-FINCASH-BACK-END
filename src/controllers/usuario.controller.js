@@ -9,7 +9,6 @@ const criarService = async (req, res) => {
         res.status(400).json({ menssagem: "Por favor, preencha todos os campos para se registrar!" })
     }
 
-
     //      DEVOLVE A MENSAGEM DE ERRO E STATUS PARA O BANCO E USUARIO
     if (!Usuario) {
         return res.status(400).send({ menssagem: "Erro na criação do usuario" });
@@ -26,7 +25,6 @@ const criarService = async (req, res) => {
         },
     })
 };
-
 const pesUsu = async (req, res) => {
     const Usuarios = await usuarioService.pesUsuService();
 
@@ -50,11 +48,43 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
 
     res.send(UsuarioId); //Retorna ao usuario a exibição do nome, idade e afins
 
-}
+};
+const UsuUpdate = async (req, res) => {
+    const { nome, senha, email, telefone } = req.body;
 
-//EXPORTA O MODULO QUE CRIA O USUARIO, QUE É CONSUMIDO PELAS ROUTES
+    //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
+    if (!nome && !senha && !email && !telefone) {
+        res.status(400).json({ menssagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
+    }
+
+    const id = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) { //If feito para verificar se o id existe no banco de dados
+        return res.status(400).send({ menssagem: "Esse ID não é valido" })
+    };
+
+    const Usuario = await usuarioService.pesUsuIdService(id);
+
+    if (!Usuario) {
+        return res.status(400).send({ menssagem: "Erro na identificação do usuario" });
+    }
+
+    await usuarioService.UsuUpdateService(
+        id,
+        nome,
+        senha,
+        email,
+        telefone
+    );
+
+    res.send({ menssagem: "Usuario alterado com sucesso" });
+
+};
+
+//exporta os modules, o que cria o usuario no bd, o que pesquisa, o que pesquisa pelo ID e o que faz update
 module.exports = {
     criarService,
     pesUsu,
-    pesUsuId
+    pesUsuId,
+    UsuUpdate
 };

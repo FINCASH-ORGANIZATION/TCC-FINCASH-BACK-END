@@ -6,6 +6,7 @@ const usuarioController = require('../controllers/usuario.controller');
 rota.post("/", usuarioController.criarService);
 rota.get("/", usuarioController.pesUsu)
 rota.get("/:id", usuarioController.pesUsuId)
+rota.patch("/:id", usuarioController.UsuUpdate)
 
 //EXPORTA A ROTA PARA SER CHAMADA PELO CONTROLLER
 module.exports = rota;

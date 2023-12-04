@@ -6,9 +6,13 @@ const Usuario = require("../models/Usuario");
 const create = (body) => Usuario.create(body);
 const pesUsuService = () => Usuario.find();
 const pesUsuIdService = (id) => Usuario.findById(id);
+const UsuUpdateService = (id, nome, senha, email, telefone) => Usuario.findOneAndUpdate(
+    { _id: id },
+    { nome, senha, email, telefone });
 
 module.exports = {
     create,
     pesUsuService,
-    pesUsuIdService
+    pesUsuIdService,
+    UsuUpdateService
 };
