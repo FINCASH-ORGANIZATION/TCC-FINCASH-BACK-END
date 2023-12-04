@@ -1,7 +1,7 @@
 const usuarioService = require("../services/Usuario.service");
 const mongoose = require('mongoose');
 
-const criarService = async (req, res) => {
+const criarUsu = async (req, res) => {
     const { nome, senha, email, telefone } = req.body;
     const Usuario = await usuarioService.create(req.body)
     //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
@@ -83,7 +83,7 @@ const UsuUpdate = async (req, res) => {
 
 //exporta os modules, o que cria o usuario no bd, o que pesquisa, o que pesquisa pelo ID e o que faz update
 module.exports = {
-    criarService,
+    criarUsu,
     pesUsu,
     pesUsuId,
     UsuUpdate
