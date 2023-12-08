@@ -43,7 +43,7 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
     const UsuarioId = await usuarioService.pesUsuIdService(id) //Solicita o ID no banco de dados para enviar ao usuario
 
     if (!UsuarioId) { //IF feito caso o usuario não seja encontrado/não exista no bd
-        return res.status(400).send({ Menssagem: "Não foi achado o usuario" })
+        return res.status(400).send({ Menssagem: "Usuario não emcontrado" })
     };
 
     res.send(UsuarioId); //Retorna ao usuario a exibição do nome, idade e afins
