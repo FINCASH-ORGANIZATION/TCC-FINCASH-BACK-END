@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const criarUsu = async (req, res) => {
     const { nome, senha, email, telefone } = req.body;
-    const Usuario = await usuarioService.create(req.body)
+    const Usuario = await usuarioService.criarUsu(req.body)
     //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
     if (!nome || !senha || !email || !telefone) {
         res.status(400).json({ menssagem: "Por favor, preencha todos os campos para se registrar!" })

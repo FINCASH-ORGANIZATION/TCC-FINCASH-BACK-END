@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const connectDatabase = () => {
     console.log('Esperando a conexão com a database')
 
-    mongoose.connect("mongodb+srv://leonardoborgesphp:teste@fincash.etp41.mongodb.net/?retryWrites=true&w=majority",
+    mongoose.connect("mongodb+srv://MESTRE:Amadeu!2023@fincash.b6vpiim.mongodb.net/?retryWrites=true&w=majority",
         { useNewUrlParser: true, useUnifiedTopology: true }
     ).then(() => console.log("Banco de dados foi conectado!")).catch((error) => console.log("Banco de dados NÃO conectado"));
 };
