@@ -1,11 +1,32 @@
-<mxfile host="app.diagrams.net" modified="2024-02-13T12:07:51.553Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0" etag="icdGfGQWePwa8EaPkisq" version="23.1.4" type="github">
+<mxfile host="app.diagrams.net" modified="2024-02-13T15:38:27.810Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0" etag="CqkHGUnS1YkoGksaWWoM" version="23.1.4" type="github">
   <diagram name="Page-1" id="e56a1550-8fbb-45ad-956c-1786394a9013">
-    <mxGraphModel dx="1426" dy="785" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+    <mxGraphModel dx="2194" dy="1208" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="JSRTjQ1aCW7A50pTSabB-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="50" y="110" width="120" height="60" as="geometry" />
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-4" value="&lt;font size=&quot;1&quot; face=&quot;Verdana&quot;&gt;&lt;b style=&quot;font-size: 23px;&quot;&gt;ARQUITETURA DA API WEB FINCASH&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="170" y="30" width="760" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="JSRTjQ1aCW7A50pTSabB-4" target="JSRTjQ1aCW7A50pTSabB-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="JSRTjQ1aCW7A50pTSabB-4" target="JSRTjQ1aCW7A50pTSabB-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="JSRTjQ1aCW7A50pTSabB-4" target="JSRTjQ1aCW7A50pTSabB-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-10" value="Controllers" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="270" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-11" value="Database" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="270" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-14" value="Services" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="270" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JSRTjQ1aCW7A50pTSabB-19" value="Rotas" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="360" width="140" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
