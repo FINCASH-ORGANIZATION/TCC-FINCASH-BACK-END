@@ -5,6 +5,7 @@ const Usuario = require("../models/Usuario"); //FAZ A IMPORTAÇÃO DO MODULO QUE
 
 const criarUsu = (body) => Usuario.create(body); //Cria o usuario com base no modelo importado contendo as informações do mesmo no banco
 const pesUsuService = () => Usuario.find(); //Pesquisa o usuario no banco
+//const PesUsuNameService = (nome) => Usuario.findByName(); 
 const pesUsuIdService = (id) => Usuario.findById(id); // Pesquisa o ID do usuario no banco
 const UsuUpdateService = (id, nome, senha, email, telefone) => Usuario.findOneAndUpdate(
     { _id: id },
@@ -14,5 +15,6 @@ module.exports = {
     criarUsu,
     pesUsuService,
     pesUsuIdService,
-    UsuUpdateService
+    UsuUpdateService,
+//    PesUsuNameService
 };

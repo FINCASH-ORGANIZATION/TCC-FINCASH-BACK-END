@@ -25,6 +25,19 @@ const criarUsu = async (req, res) => {
         },
     })
 };
+
+/*const PesUsuName = async (req, res) => {
+    const nome = req.params.nome;
+
+    const usuarioNome = await usuarioService.PesUsuNameService({nome : nome});
+
+    if (!usuarioNome) {
+        return res.status(400).send({ erro: 'O nome não existe no banco de dados.'})
+    }
+
+    res.send(usuarioNome);
+}*/
+
 const pesUsu = async (req, res) => {
     const Usuarios = await usuarioService.pesUsuService();
 
@@ -86,5 +99,6 @@ module.exports = {
     criarUsu,
     pesUsu,
     pesUsuId,
-    UsuUpdate
+    UsuUpdate,
+    //PesUsuName
 };
