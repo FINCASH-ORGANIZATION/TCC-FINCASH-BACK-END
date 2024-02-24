@@ -32,7 +32,7 @@ const criarUsu = async (req, res) => {
     const usuarioNome = await usuarioService.PesUsuNameService({nome : nome});
 
     if (!usuarioNome) {
-        return res.status(400).send({ erro: 'O nome não existe no banco de dados.'})
+        return res.status(400).send({ erro: "O nome não existe no banco de dados."})
     }
 
     res.send(usuarioNome);
