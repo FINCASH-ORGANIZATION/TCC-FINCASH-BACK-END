@@ -7,6 +7,9 @@
 
 const rota = require('express').Router();
 
+
+
+
 /************************************************************************************
 *   Nome da variavel: usuarioController;                                            *
 *   Descrição: Uma variavel que importa a função "UsuarioController" do controllers *
@@ -14,6 +17,10 @@ const rota = require('express').Router();
 *************************************************************************************/
 
 const usuarioController = require('../controllers/usuario.controller');
+
+
+
+
 
 /*************************************************************************************
 *   Nome da variavel: rota;                                                          *
@@ -26,6 +33,10 @@ rota.post("/", usuarioController.criarUsu);
 rota.get("/", usuarioController.pesUsu)
 rota.get("/:id", usuarioController.pesUsuId)
 rota.patch("/:id", usuarioController.UsuUpdate)
+
+
+
+
 
 //  Exporta a variavel rota que irá ser chamada pelo controller.
 module.exports = rota;
