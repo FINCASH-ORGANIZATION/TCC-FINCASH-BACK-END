@@ -5,7 +5,7 @@ const criarUsu = async (req, res) => {
     const { nome, senha, email, telefone } = req.body;
     const Usuario = await usuarioService.criarUsu(req.body)
     //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
-    if (!nome || !senha || !email || !telefone) {
+    if (!nome || !senha || !email) {
         res.status(400).json({ menssagem: "Por favor, preencha todos os campos para se registrar!" })
     }
 
@@ -50,23 +50,23 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
     const id = req.params.id; //Faz a requisição do id
 
     if (!mongoose.Types.ObjectId.isValid(id)) { //If feito para verificar se o id existe no banco de dados
-        return res.status(400).send({ menssagem: "Esse ID não é valido" })
+        return res.status(400).send({ Mensagem: "Esse ID não é valido" })
     };
 
     const UsuarioId = await usuarioService.pesUsuIdService(id) //Solicita o ID no banco de dados para enviar ao usuario
 
     if (!UsuarioId) { //IF feito caso o usuario não seja encontrado/não exista no bd
-        return res.status(400).send({ Menssagem: "Usuario não emcontrado" })
+        return res.status(400).send({ Mensagem: "Usuario não encontrado" })
     };
 
     res.send(UsuarioId); //Retorna ao usuario a exibição do nome, idade e afins
 
 };
 const UsuUpdate = async (req, res) => {
-    const { nome, senha, email, telefone } = req.body;
+    const { nome, senha, email, avatar, telefone } = req.body;
 
     //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
-    if (!nome && !senha && !email && !telefone) {
+    if (!nome && !senha && !email && !avatar && !telefone) {
         res.status(400).json({ menssagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
     }
 
@@ -87,6 +87,7 @@ const UsuUpdate = async (req, res) => {
         nome,
         senha,
         email,
+        avatar,
         telefone
     );
 

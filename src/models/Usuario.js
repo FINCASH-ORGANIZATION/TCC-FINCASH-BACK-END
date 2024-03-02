@@ -17,6 +17,11 @@ const UsuarioSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    avatar: {
+        type: String,
+        required: false,
+    },
+
     email: {
         type: String,
         required: true,
@@ -28,7 +33,7 @@ const UsuarioSchema = new mongoose.Schema({
     },
     telefone: {
         type: String,
-        required: true,
+        required: false,
     },
 });
 
