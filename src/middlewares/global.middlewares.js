@@ -16,7 +16,7 @@ const validacaoUsuario = async (req, res, next) => {
     const Usuario = await usuarioService.findById(id);
 
     if (!Usuario) {
-        return res.status(400).send({ menssagem: "Usuario não existe" });
+        return res.status(400).send({ Menssagem: "Usuario não existe" });
     };
 
 };
