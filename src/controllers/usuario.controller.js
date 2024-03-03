@@ -1,19 +1,18 @@
 const usuarioService = require("../services/Usuario.service");
-const mongoose = require('mongoose');
 
 const criarUsu = async (req, res) => {
     const { nome, senha, email, telefone, avatar } = req.body;
     const Usuario = await usuarioService.criarUsu(req.body)
     //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
     if (!nome || !senha || !email) {
-        res.status(400).json({ mensagem: "Por favor, preencha todos os campos para se registrar!" })
+        res.status(400).json({ Mensagem: "Por favor, preencha todos os campos para se registrar!" })
     }
 
     //      DEVOLVE A MENSAGEM DE ERRO E STATUS PARA O BANCO E USUARIO
     if (!Usuario) {
-        return res.status(400).send({ menssagem: "Erro na criação do usuario" });
+        return res.status(400).send({ Mensagem: "Erro na criação do usuario" });
     }
-    //DEVOLVE PARA O USUARIO A RESPOSTA COM OS DADOS INSERIDOS E SE FOI REALMENTE CRIADO
+    //      DEVOLVE PARA O USUARIO A RESPOSTA COM OS DADOS INSERIDOS E SE FOI REALMENTE CRIADO
     res.status(201).json({
         Menssagem: "Usuario cadastrado com sucesso!",
         Usuario: {
@@ -48,19 +47,18 @@ const pesUsu = async (req, res) => {
     res.send(Usuarios)
 };
 const pesUsuId = async (req, res) => { //Function de verificação de usuarios e a Id dos mesmos
-    const id = req.params.id; //Faz a requisição do id
 
-    if (!mongoose.Types.ObjectId.isValid(id)) { //If feito para verificar se o id existe no banco de dados
+    /* if (!mongoose.Types.ObjectId.isValid(id)) { // If feito para verificar se o id existe no banco de dados
         return res.status(400).send({ Mensagem: "Esse ID não é valido" })
-    };
+    };*/
 
-    const UsuarioId = await usuarioService.pesUsuIdService(id) //Solicita o ID no banco de dados para enviar ao usuario
+    const UsuarioId = req.Usuario; // Faz a requisição do Usuario para o banco de dados
 
-    if (!UsuarioId) { //IF feito caso o usuario não seja encontrado/não exista no bd
+    /* if (!UsuarioId) { // IF feito caso o usuario não seja encontrado/não exista no bd
         return res.status(400).send({ Mensagem: "Usuario não encontrado" })
-    };
+    }; */
 
-    res.send(UsuarioId); //Retorna ao usuario a exibição do nome, idade e afins
+    res.send(UsuarioId); // Retorna ao usuario a exibição do nome, email e afins
 
 };
 const UsuUpdate = async (req, res) => {
@@ -71,17 +69,17 @@ const UsuUpdate = async (req, res) => {
         res.status(400).json({ menssagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
     }
 
-    const id = req.params.id;
+    const {id, Usuario} = req;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) { //If feito para verificar se o id existe no banco de dados
+    /* if (!mongoose.Types.ObjectId.isValid(id)) { //If feito para verificar se o id existe no banco de dados
         return res.status(400).send({ menssagem: "Esse ID não é valido" })
-    };
+    }; */
 
-    const Usuario = await usuarioService.pesUsuIdService(id);
+    /*const Usuario = await usuarioService.pesUsuIdService(id);
 
-    if (!Usuario) {
+     if (!Usuario) {
         return res.status(400).send({ menssagem: "Erro na identificação do usuario" });
-    }
+    } */
 
     await usuarioService.UsuUpdateService(
         id,
