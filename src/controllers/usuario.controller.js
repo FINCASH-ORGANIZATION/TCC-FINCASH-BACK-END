@@ -58,7 +58,7 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
         return res.status(400).send({ Mensagem: "Usuario não encontrado" })
     }; */
 
-    res.send(UsuarioId); // Retorna ao usuario a exibição do nome, email e afins
+    res.send(UsuarioId); // Faz a Requisição do Usuario ao banco de dados e retorna ao usuario a exibição do nome, email e afins
 
 };
 const UsuUpdate = async (req, res) => {
