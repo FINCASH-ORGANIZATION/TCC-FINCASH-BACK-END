@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 //RESPONSAVEL PELA CONEXÃO COM O BANCO DE DADOS
 const connectDatabase = () => {
     console.log('Esperando a conexão com a database')
 
-    mongoose.connect("mongodb+srv://MESTRE:Amadeu!2023@fincash.b6vpiim.mongodb.net/?retryWrites=true&w=majority",
-        { useNewUrlParser: true, useUnifiedTopology: true }
-    ).then(() => console.log("Banco de dados foi conectado!")).catch((error) => console.log("Banco de dados NÃO conectado"));
+    mongoose
+        .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }
+        ).then(() => console.log("Banco de dados foi conectado!")).catch((error) => console.log("Banco de dados NÃO conectado"));
 };
 
 //EXPORTA A VARIAVEL QUE ARMAZENA A CONEXÃO "connectDatabase" PARA O INDEX.JS, ONDE A MESMA É EXECUTADA
-module.exports = connectDatabase;
+export default connectDatabase;

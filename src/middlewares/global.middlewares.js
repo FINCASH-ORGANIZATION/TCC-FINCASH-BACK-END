@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const usuarioService = require("../services/Usuario.service");
+import mongoose from "mongoose";
+import usuarioService from "../services/Usuario.service.js";
 
-const validacaoId = (req, res, next) => {
+export const validacaoId = (req, res, next) => {
     const id = req.params.id; // Faz a requisição do ID
 
     // If feito para verificar se o ID existe no banco de dados
@@ -9,16 +9,17 @@ const validacaoId = (req, res, next) => {
         return res.status(400).send({ Mensagem: "Esse ID não é valido" })
     };
 
-    next(); // Depois que valida o ID e passa do 'IF', libera para a próxima função/const
+    next(); // Depois que valida o ID, libera para a próxima função/const
 
 };
 
-const validacaoUsuario = async (req, res, next) => {
-    const id = req.params.id; 
+export const validacaoUsuario = async (req, res, next) => {
+    const id = req.params.id; // Faz a requisição do ID para assim, encontrar o usuario desejado 
 
-    const Usuario = await usuarioService.pesUsuIdService(id); 
-    
-    // If feito para verificar se o Usuario existe no banco de dados
+    // Const para fazer a verificação do usuário dentro do banco de dados, 'AWAIT' para aguardar uma resposta do banco de dados
+    const Usuario = await usuarioService.pesUsuIdService(id);
+
+    // MENSAGEM DE ERROR PARA CASO O USUÁRIO NÃO EXISTA DENTRO DO BANCO DE DADOS
     if (!Usuario) {
         return res.status(400).send({ Mensagem: "Usuario não existe" });
     };
@@ -29,7 +30,3 @@ const validacaoUsuario = async (req, res, next) => {
     next();
 };
 
-module.exports = {
-    validacaoId,
-    validacaoUsuario,
-}
