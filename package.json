@@ -1,5 +1,5 @@
 {
-  "name": "ptcc-fincash",
+  "name": "dtcc-fincash",
   "version": "1.0.0",
   "description": "API do TCC FINCASH",
   "main": "index.js",

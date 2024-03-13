@@ -4,14 +4,15 @@ const criarUsu = async (req, res) => {
     try {
         const { nome, senha, email, telefone, avatar } = req.body;
         const Usuario = await usuarioService.criarUsu(req.body)
-        //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
+        //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE;
+        //      Erro 400, quando um campo não pode ser processado pelo servidor, erro de digitação do usuário
         if (!nome || !senha || !email) {
             res.status(400).json({ message: "Por favor, preencha todos os campos para se registrar!" })
         };
 
         //      DEVOLVE A MENSAGEM DE ERRO E STATUS PARA O BANCO E USUARIO
         if (!Usuario) {
-            return res.status(400).send({ message: "Erro na criação do usuario" });
+            return res.status(400).send({ message: "Erro na criação do usuario" }); 
         };
         //      DEVOLVE PARA O USUARIO A RESPOSTA COM OS DADOS INSERIDOS E SE FOI REALMENTE CRIADO
         res.status(201).json({
@@ -26,7 +27,7 @@ const criarUsu = async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).send({ message: error.message }); // Erro 500 Quando o servidor cai inesperadamente
     };
 };
 
