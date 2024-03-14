@@ -1,4 +1,5 @@
 // Importa o módulo Mongoose, no qual permite o uso do script do mesmo;
+// Importa o módulo do bcrypt, responsável pela criptografia de senha. 
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 /*

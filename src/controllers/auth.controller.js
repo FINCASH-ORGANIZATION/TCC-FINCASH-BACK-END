@@ -1,6 +1,6 @@
-import rota from "../routes/auth.route.js"
-import bcrypt from 'bcrypt'
-import { loginService } from '../services/auth.service.js'
+import rota from "../routes/auth.route.js";
+import bcrypt from "bcrypt";
+import { loginService, geradorToken } from "../services/auth.service.js";
 
 
 const login = async (req, res) => {
@@ -15,19 +15,21 @@ const login = async (req, res) => {
         const usuario = await loginService(email);
 
         if (!usuario) {
-            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" }) 
+            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" });
         }
 
         const senhaisValid = bcrypt.compareSync(senha, usuario.senha);
 
         if (!senhaisValid) {
-            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" })
+            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" });
         }
 
-        res.send("penis");
+        const token = geradorToken(usuario.id);      
+
+        res.send(token);
     }
     catch (error) {
-        res.status(500).send(error.message); // Erro 500 Quando o servidor cai inesperadamente
+        res.status(500).send(error.message); // Erro 500 significa que há um problema com alguma das bases do servidor
     }
 }
 
