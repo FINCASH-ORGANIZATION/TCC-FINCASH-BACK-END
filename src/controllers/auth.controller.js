@@ -24,9 +24,9 @@ const login = async (req, res) => {
             return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" });
         }
 
-        const token = geradorToken(usuario.id);      
+        const token = geradorToken(usuario.id);
 
-        res.send(token);
+        res.send("penis");
     }
     catch (error) {
         res.status(500).send(error.message); // Erro 500 significa que há um problema com alguma das bases do servidor

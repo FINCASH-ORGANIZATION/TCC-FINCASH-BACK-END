@@ -12,15 +12,14 @@ import authRota from "./src/routes/auth.route.js";
 
 connectDatabase() // Estabelece a conexão com o banco de dados
 
-const app = express() // Define que o express será utilizado pelo app
-        
-const port = process.env.PORT || 3000; 
+const port = process.env.PORT || 3000;
+
+const app = express() // Define que o express será utilizado pelo app 
 
 app.use(express.json()) // Define que o express irá receber dados em json
-
 app.use("/usuario", usuarioRota) // Define a rota do usuário
 app.use("/auth", authRota)
 
 app.listen(port, () => { // Inicia o servidor
-    console.log('A porta está aberta em:', { port })
+    console.log(`A porta está aberta em: ${port}`)
 })  
