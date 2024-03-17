@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 está sendo usado para, assim que for feita a requisição ao banco de dados, a senha também irá retornar nos campos, mas criptografada. */
 const loginService = (email) => Usuario.findOne({ email: email }).select("+senha");
 
-const geradorToken = () => jwt.sign({ id: id }, process.env.CHAVE_JWT, {expiresIn: 172800});
+// Esta função geradorToken recebe um ID como parâmetro e retorna um token JWT assinado com a chave especificada/criptografada e com uma 
+// expiração de 48 horas (172800 segundos).
+const geradorToken = (id) => jwt.sign({ id: id }, process.env.CHAVE_JWT, {expiresIn: 172800});
 
 export { loginService, geradorToken };
