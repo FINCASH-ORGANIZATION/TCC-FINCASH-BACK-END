@@ -1,34 +1,37 @@
-import { criartransService, pesTransService } from "../services/transacao.service.js";
-import { ObjectId } from "mongoose";
+import { criartranService, pestraService } from "../services/transacao.service.js";
 
 const criarTransacao = async (req, res) => {
     try {
-        const { tipo, precoUnitario, valorTotal} = req.body;
+        const { tipo, precoUnitario, valorTotal } = req.body;
 
         if (!tipo || !precoUnitario || !valorTotal) {
-            res.status(400).json({ message: "Por favor, preencha todos os campos para se registrar!" })
-        };
+            res.status(400).send({ mensagem: "Por favor, preencha todos os campos para se registrar!" });
+        }
 
-        await criartransService({
+        await criartranService({
             tipo,
             precoUnitario,
             valorTotal,
-            Usuario: {_id: "65ee28960a3e7912cbdb013f"},
-        });
+            Usuario: { _id: "65ee28960a3e7912cbdb013f" },
+        }); 
 
-        res.status(201)
+        res.send(201)
     }
     catch (error) {
         res.status(500).send({ message: error.message });
     };
 };
 
-const pesTransacao = (req, res) => {
-    const transacao = [];
+const pesTransacao = async (req, res) => {
+    const transacao = await pestraService();
+    if (transacao.length === 0)
+        return res.status(400).send({
+            mensagem: "Não há transações registradas!"
+        })
     res.send(transacao);
 };
 
 export {
-    pesTransacao,
-    criarTransacao
+    criarTransacao,
+    pesTransacao
 };

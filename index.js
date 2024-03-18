@@ -19,8 +19,8 @@ const app = express() // Define que o express será utilizado pelo app
 
 app.use(express.json()) // Define que o express irá receber dados em json
 app.use("/usuario", usuarioRota) // Define a rota do usuário
-app.use("/auth", authRota)
-app.use("/transacao", transacaoRota)
+app.use("/auth", authRota) // Define a rota de autenticação do usuario
+app.use("/transacao", transacaoRota)  // Define a rota da transação
 
 app.listen(port, () => { // Inicia o servidor
     console.log(`A porta está aberta em: ${port}`)

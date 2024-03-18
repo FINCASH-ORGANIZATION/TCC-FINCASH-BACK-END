@@ -1,10 +1,10 @@
 import transacao from "../models/transacao.js";
 
-const criartransService = (body) => transacao.create(body);
+const criartranService = (body) => transacao.create(body);
 
-const pesTransService = () => transacao.find()
+const pestraService = () => transacao.find()
 
 export {
-    criartransService,
-    pesTransService
+    criartranService,
+    pestraService
 };

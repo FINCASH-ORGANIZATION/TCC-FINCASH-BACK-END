@@ -1,4 +1,4 @@
-import mongoose, {Types}from "mongoose";
+import mongoose, {Types} from "mongoose";
 
 // Esquema para uma categoria de gasto ou receita
 const categoriaReceitaSchema = new mongoose.Schema({
@@ -33,12 +33,12 @@ const categoriaReceitaSchema = new mongoose.Schema({
             'Emergências',
             'Outros'
         ],
-        required: false,
+        required: true,
     },
     Usuario: {
         type: Types.ObjectId,
         ref: 'Usuario',
-        required: false,
+        required: true,
     }
 });
 

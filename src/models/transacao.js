@@ -1,11 +1,11 @@
-import mongoose, {Types} from "mongoose";
-import categoriaTransacao from "./categoriaTransacao.js";
+import mongoose, { Types } from "mongoose";
+import categoriaTransacao from "../models/categoriaTransacao.js";
 
 const transacaoSchema = new mongoose.Schema({
     // Tipo de transação (compra, venda, dividendos, etc.)
     tipo: {
         type: String,
-        required: true, 
+        required: true,
     },
     // Preço unitário da transação
     precoUnitario: {
@@ -24,18 +24,16 @@ const transacaoSchema = new mongoose.Schema({
     },
     Usuario: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Usuario",
+        ref: 'Usuario',
         required: true,
     },
     categoriaReceita: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'CategoriaTransacao',
+        ref: 'categoriaTransacao',
         required: false,
     },
 });
 
-const transacao = mongoose.model('transacao', transacaoSchema )
+const transacao = mongoose.model('transacao', transacaoSchema)
 
 export default transacao;
-
-
