@@ -13,7 +13,7 @@ const criarTransacao = async (req, res) => {
             precoUnitario,
             valorTotal,
             Usuario: { _id: "65ee28960a3e7912cbdb013f" },
-        }); 
+        });
 
         res.send(201)
     }
