@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import UsuarioService from "../services/Usuario.service.js";
 
 dotenv.config();
 
@@ -9,26 +10,33 @@ export const authMiddlewares = (req, res, next) => {
         const { authorization } = req.headers;
 
         if (!authorization) {
-            return res.send(401);
+            return res.sendStatus(401);
         }
 
         const particao = authorization.split(" ");
 
-        if (particao.lenght !== 2) {
-            return res.send(401);
+        if (particao.length !== 2) {
+            return res.sendStatus(401);
         }
 
         const [schema, token] = particao;
 
         if (schema !== "Bearer") {
-            return res.send(401);
+            return res.sendStatus(401);
         }
 
-        jwt.verify(token, process.env.CHAVE_JWT, (error, decode) => {
+        jwt.verify(token, process.env.CHAVE_JWT, async (error, decoded) => {
             if (error) {
-                return res.send(401);
+                return res.status(401).send({ mensagem: "Token Inválido!" });
             }
-            console.log(decode);
+
+            const Usuario = await UsuarioService.findByIdUsuarioService(decoded.id);
+
+            if (!Usuario || !Usuario.id) {
+                return res.status(401).send({ mensagem: "Token Inválido!" })
+            }
+
+            req.UsuarioId = decoded.id;
         });
 
         next();
