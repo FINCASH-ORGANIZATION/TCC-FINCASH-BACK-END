@@ -12,11 +12,11 @@ const criarUsu = async (req, res) => {
 
         //      DEVOLVE A MENSAGEM DE ERRO E STATUS PARA O BANCO E USUARIO
         if (!Usuario) {
-            return res.status(400).send({ message: "Erro na criação do usuario" }); 
+            return res.status(400).send({ message: "Erro na criação do usuario" });
         };
         //      DEVOLVE PARA O USUARIO A RESPOSTA COM OS DADOS INSERIDOS E SE FOI REALMENTE CRIADO
         res.status(201).json({
-            Menssagem: "Usuario cadastrado com sucesso!",
+            Mensagem: "Usuario cadastrado com sucesso!",
             Usuario: {
                 id: Usuario._id,
                 nome,
@@ -36,7 +36,7 @@ const pesUsu = async (req, res) => {
         const Usuarios = await usuarioService.pesUsuService();
 
         if (Usuarios.lenght === 0) {
-            return res.status(400).send({ menssagem: "Não há usuarios cadastrados" })
+            return res.status(400).send({ mensagem: "Não há usuarios cadastrados" })
         };
 
         res.send(Usuarios);
@@ -60,7 +60,7 @@ const UsuUpdate = async (req, res) => {
 
         //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
         if (!nome && !senha && !email && !avatar && !telefone) {
-            res.status(400).json({ menssagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
+            res.status(400).json({ mensagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
         };
 
         const { id, Usuario } = req;
@@ -73,7 +73,7 @@ const UsuUpdate = async (req, res) => {
             telefone
         );
 
-        res.send({ menssagem: "Usuario alterado com sucesso" });
+        res.send({ mensagem: "Usuario alterado com sucesso" });
 
     } catch (error) {
         res.status(500).send({ message: error.message });

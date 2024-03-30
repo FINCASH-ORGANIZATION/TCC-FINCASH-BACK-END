@@ -23,7 +23,20 @@ const criarTransacao = async (req, res) => {
 };
 
 const pesTransacao = async (req, res) => {
-    const transacao = await pestraService();
+    let { limit, offset } = req.query
+
+    limit = Number(limit);
+    offset = Number(offset);
+
+    if (limit) {
+        limit = 5
+    }
+    
+    if (offset) {
+        offset = 0
+    }
+
+    const transacao = await pestraService(limit, offset);
     if (transacao.length === 0)
         return res.status(400).send({
             mensagem: "Não há transações registradas!"
