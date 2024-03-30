@@ -34,7 +34,7 @@ const UsuarioSchema = new mongoose.Schema({
     },
     telefone: {
         type: String,
-        required: false,
+        required: true,
         unique: true,
     }
 });

@@ -1,4 +1,5 @@
-import { criartranService, pestraService } from "../services/transacao.service.js";
+import { criartranService, pestraService, contarTrans } from "../services/transacao.service.js";
+import mongoose from "mongoose";
 
 const criarTransacao = async (req, res) => {
     try {
@@ -31,16 +32,29 @@ const pesTransacao = async (req, res) => {
     if (limit) {
         limit = 5
     }
-    
+
     if (offset) {
         offset = 0
     }
 
-    const transacao = await pestraService(limit, offset);
-    if (transacao.length === 0)
-        return res.status(400).send({
+    const transacao = await pestraService(limit, offset).select("+senha");
+    const total = await contarTrans;
+    const currentURL = req.baseUrl;
+    console.log(currentURL)
+
+    const avancar = offset + limit;
+    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${offset}` : null;
+
+    if (transacao.length === 0) {
+        res.status(400).send({
             mensagem: "Não há transações registradas!"
         })
+    };
+
+    if (transacao.Usuario === null) {
+        return transacao.Usuario = 'Usuario deletado';
+    };
+
     res.send(transacao);
 };
 
