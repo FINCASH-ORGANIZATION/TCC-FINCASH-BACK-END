@@ -1,5 +1,4 @@
 import { criartranService, pestraService, contarTrans } from "../services/transacao.service.js";
-import mongoose from "mongoose";
 
 const criarTransacao = async (req, res) => {
     try {
@@ -24,26 +23,29 @@ const criarTransacao = async (req, res) => {
 };
 
 const pesTransacao = async (req, res) => {
-    let { limit, offset } = req.query
+    let { limit, offset } = req.query;
 
     limit = Number(limit);
     offset = Number(offset);
 
     if (limit) {
-        limit = 5
+        limit = 5;
     }
 
     if (offset) {
-        offset = 0
+        offset = 0;
     }
 
     const transacao = await pestraService(limit, offset).select("+senha");
-    const total = await contarTrans;
+    const total = await contarTrans();
     const currentURL = req.baseUrl;
-    console.log(currentURL)
+    console.log(currentURL);
 
     const avancar = offset + limit;
-    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${offset}` : null;
+    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : null;
+
+    const preview = offset - limit < 0 ? null : offset - limit;
+    const previewURL = preview != null ? `${currentURL}?limit=${limit}?offset=${preview}` : null;
 
     if (transacao.length === 0) {
         res.status(400).send({
@@ -51,11 +53,27 @@ const pesTransacao = async (req, res) => {
         })
     };
 
-    if (transacao.Usuario === null) {
+    /* if (transacao.Usuario === null) {
         return transacao.Usuario = 'Usuario deletado';
-    };
+    }; */
 
-    res.send(transacao);
+    res.send({
+        avancarURL,
+        previewURL,
+        limit,
+        offset,
+        total,
+
+        results: transacao.map((item) => ({
+            id: item._id,
+            tipo: item.tipo,
+            precoUnitario: item.precoUnitario.Unitario,
+            valorTotal: item.valorTotal.total,
+            data: item.data,
+            nome: item.nome.Usuario,
+            Usuario: item.Usuario.usuarionome
+        })),
+    });
 };
 
 export {
