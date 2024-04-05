@@ -28,24 +28,36 @@ const pesTransacao = async (req, res) => {
     limit = Number(limit);
     offset = Number(offset);
 
-    if (limit) {
+    if (!limit) {
         limit = 5;
     }
 
-    if (offset) {
+    if (!offset) {
         offset = 0;
     }
 
-    const transacao = await pestraService(limit, offset).select("+senha");
+    // Chama a função pestraService para obter transações com limite (limit) e deslocamento (offset).
+    const transacao = await pestraService(limit, offset);
+    // Obtém o total de transações.
     const total = await contarTrans();
+    // Obtém a URL base atual da requisição.
     const currentURL = req.baseUrl;
-    console.log(currentURL);
 
+    // Calcula o próximo deslocamento (avançar) adicionando o limite (limit) ao deslocamento atual (offset).
     const avancar = offset + limit;
-    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : null;
 
+    // Verifica se o avanço não ultrapassa o total de transações;
+    // Se não ultrapassar, cria a URL de avanço com os parâmetros limit e offset;
+    // Caso contrário, define a mensagem "Últimos registros!" indicando que o offset está nos últimos registros.
+    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : "Últimos registros!";
+
+    // Calcula o deslocamento anterior (preview) subtraindo o limite (limit) do deslocamento atual (offset).
     const preview = offset - limit < 0 ? null : offset - limit;
-    const previewURL = preview != null ? `${currentURL}?limit=${limit}?offset=${preview}` : null;
+
+    // Verifica se o deslocamento anterior é maior ou igual a zero;
+    // Se for, cria a URL de visualização com os parâmetros limit e offset;
+    // Caso contrário, define a mensagem "Últimos registros!" indicando que o offset está nos últimos registros.
+    const previewURL = preview != null ? `${currentURL}?limit=${limit}?offset=${preview}` : "Últimos registros!";
 
     if (transacao.length === 0) {
         res.status(400).send({
@@ -53,10 +65,8 @@ const pesTransacao = async (req, res) => {
         })
     };
 
-    /* if (transacao.Usuario === null) {
-        return transacao.Usuario = 'Usuario deletado';
-    }; */
-
+    /* Traz a requisição dos itens acima e faz um res(resposta) direto na tela. Já map ele cria um array que retorna 
+    os dados do tanto das transações quanto do os dados do próprio usuário. */
     res.send({
         avancarURL,
         previewURL,
@@ -64,14 +74,13 @@ const pesTransacao = async (req, res) => {
         offset,
         total,
 
-        results: transacao.map((item) => ({
+        results: transacao.map(item => ({
             id: item._id,
             tipo: item.tipo,
-            precoUnitario: item.precoUnitario.Unitario,
-            valorTotal: item.valorTotal.total,
+            precoUnitario: item.precoUnitario,
+            valorTotal: item.valorTotal,
             data: item.data,
-            nome: item.nome.Usuario,
-            Usuario: item.Usuario.usuarionome
+            usuario: item.Usuario,
         })),
     });
 };
