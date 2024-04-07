@@ -1,4 +1,4 @@
-import { criartranService, pestraService, contarTrans } from "../services/transacao.service.js";
+import { criartranService, pestraService, contarTrans, pesIDService } from "../services/transacao.service.js";
 
 const criarTransacao = async (req, res) => {
     try {
@@ -46,18 +46,18 @@ const pesTransacao = async (req, res) => {
     // Calcula o próximo deslocamento (avançar) adicionando o limite (limit) ao deslocamento atual (offset).
     const avancar = offset + limit;
 
-    // Verifica se o avanço não ultrapassa o total de transações;
-    // Se não ultrapassar, cria a URL de avanço com os parâmetros limit e offset;
-    // Caso contrário, define a mensagem "Últimos registros!" indicando que o offset está nos últimos registros.
-    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : "Últimos registros!";
+    /* Verifica se o avanço não ultrapassa o total de transações; Se não ultrapassar, 
+    cria a URL de avanço com os parâmetros limit e offset;
+    Caso contrário, define a mensagem "Sem registros!" indicando que o offset está nos Sem registros.*/
+    const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : "Sem registros!";
 
-    // Calcula o deslocamento anterior (preview) subtraindo o limite (limit) do deslocamento atual (offset).
-    const preview = offset - limit < 0 ? null : offset - limit;
+    // Calcula o deslocamento anterior (anterior) subtraindo o limite (limit) do deslocamento atual (offset).
+    const anterior = offset - limit < 0 ? null : offset - limit;
 
     // Verifica se o deslocamento anterior é maior ou igual a zero;
     // Se for, cria a URL de visualização com os parâmetros limit e offset;
-    // Caso contrário, define a mensagem "Últimos registros!" indicando que o offset está nos últimos registros.
-    const previewURL = preview != null ? `${currentURL}?limit=${limit}?offset=${preview}` : "Últimos registros!";
+    // Caso contrário, define a mensagem "Sem registros!" indicando que o offset está nos Sem registros.
+    const antigaURL = anterior != null ? `${currentURL}?limit=${limit}?offset=${anterior}` : "Sem registros!";
 
     if (transacao.length === 0) {
         res.status(400).send({
@@ -69,7 +69,7 @@ const pesTransacao = async (req, res) => {
     os dados do tanto das transações quanto do os dados do próprio usuário. */
     res.send({
         avancarURL,
-        previewURL,
+        antigaURL,
         limit,
         offset,
         total,
@@ -80,12 +80,36 @@ const pesTransacao = async (req, res) => {
             precoUnitario: item.precoUnitario,
             valorTotal: item.valorTotal,
             data: item.data,
-            usuario: item.Usuario,
+            usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
         })),
     });
 };
 
+const pesquisaID = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const transacao = await pesIDService(id);
+
+        res.send({
+            transacao: {
+                id: transacao._id,
+                tipo: transacao.tipo,
+                precoUnitario: transacao.precoUnitario,
+                valorTotal: transacao.valorTotal,
+                data: transacao.data,
+                usuario: transacao.Usuario ? transacao.Usuario : "Usuário não encontrado!"
+            },
+        });
+    }
+    catch (error) {
+        res.status(500).send({ message: error.message });
+    };
+};
+
+
 export {
     criarTransacao,
-    pesTransacao
+    pesTransacao,
+    pesquisaID
 };

@@ -8,8 +8,11 @@ const pestraService = (limit, offset) => transacao.find().sort({ _id: -1 }).skip
 
 const contarTrans = () => transacao.countDocuments();
 
+const pesIDService = (id) => transacao.findById(id).populate('Usuario');
+
 export {
     criartranService,
     contarTrans,
-    pestraService
+    pestraService,
+    pesIDService
 };
