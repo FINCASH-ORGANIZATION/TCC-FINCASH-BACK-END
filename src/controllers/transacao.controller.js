@@ -1,6 +1,14 @@
-import { criartranService, pestraService, contarTrans, pesIDService } from "../services/transacao.service.js";
+import { query } from "express";
+import {
+    criartranService,
+    pestraService,
+    contarTranService,
+    pesIDService,
+    pesqTituloService
+} from "../services/transacao.service.js";
+import transacao from "../models/transacao.js";
 
-const criarTransacao = async (req, res) => {
+const criarTransacaoRota = async (req, res) => {
     try {
         const { tipo, precoUnitario, valorTotal } = req.body;
 
@@ -22,7 +30,7 @@ const criarTransacao = async (req, res) => {
     };
 };
 
-const pesTransacao = async (req, res) => {
+const pesTransacaoRota = async (req, res) => {
     let { limit, offset } = req.query;
 
     limit = Number(limit);
@@ -39,7 +47,7 @@ const pesTransacao = async (req, res) => {
     // Chama a função pestraService para obter transações com limite (limit) e deslocamento (offset).
     const transacao = await pestraService(limit, offset);
     // Obtém o total de transações.
-    const total = await contarTrans();
+    const total = await contarTranService();
     // Obtém a URL base atual da requisição.
     const currentURL = req.baseUrl;
 
@@ -85,7 +93,7 @@ const pesTransacao = async (req, res) => {
     });
 };
 
-const pesquisaID = async (req, res) => {
+const pesquisaIDRota = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -107,9 +115,36 @@ const pesquisaID = async (req, res) => {
     };
 };
 
+const pesTituloRota = async (req, res) => {
+    try {
+        const { titulo } = req.query;
+
+        const transacao = await pesqTituloService(titulo);
+
+        if (transacao.length === 0) {
+            return res.status(400).send({ mensagem: "Esse título não existe!" })
+        };
+
+        res.send({
+            transacao: {
+                id: transacao._id,
+                tipo: transacao.tipo,
+                precoUnitario: transacao.precoUnitario,
+                valorTotal: transacao.valorTotal,
+                data: transacao.data,
+                usuario: transacao.Usuario
+            },
+        });
+    }
+    catch (error) {
+        res.status(404).send({ message: error.message });
+    };
+};
+
 
 export {
-    criarTransacao,
-    pesTransacao,
-    pesquisaID
+    criarTransacaoRota,
+    pesTransacaoRota,
+    pesquisaIDRota,
+    pesTituloRota
 };

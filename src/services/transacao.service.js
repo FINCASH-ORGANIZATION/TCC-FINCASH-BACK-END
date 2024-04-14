@@ -6,13 +6,20 @@ const criartranService = (body) => transacao.create(body);
 
 const pestraService = (limit, offset) => transacao.find().sort({ _id: -1 }).skip(offset).limit(limit).populate('Usuario');
 
-const contarTrans = () => transacao.countDocuments();
+const contarTranService = () => transacao.countDocuments();
 
 const pesIDService = (id) => transacao.findById(id).populate('Usuario');
 
+const pesqTituloService = (titulo) => transacao.find({
+    titulo: { $regex: `${titulo || ""}`, $opcoes: "i" },
+})
+    .sort({ _id: -1 })
+    .populate('Usuario');
+
 export {
     criartranService,
-    contarTrans,
     pestraService,
-    pesIDService
+    contarTranService,
+    pesIDService,
+    pesqTituloService
 };
