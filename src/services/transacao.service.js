@@ -10,8 +10,8 @@ const contarTranService = () => transacao.countDocuments();
 
 const pesIDService = (id) => transacao.findById(id).populate('Usuario');
 
-const pesqTituloService = (titulo) => transacao.find({
-    titulo: { $regex: `${titulo || ""}`, $opcoes: "i" },
+const pesqTipoService = (tipo) => transacao.find({
+    tipo: { $regex: `${tipo || ""}`, $options: "i" },
 })
     .sort({ _id: -1 })
     .populate('Usuario');
@@ -21,5 +21,5 @@ export {
     pestraService,
     contarTranService,
     pesIDService,
-    pesqTituloService
+    pesqTipoService
 };

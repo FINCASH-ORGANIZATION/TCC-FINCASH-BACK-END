@@ -1,18 +1,16 @@
-import { Router } from "express";
-const rota = Router();
-
+import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
-    pesTituloRota
+    pesTipoRota
 } from "../controllers/transacao.controller.js";
-import { authMiddlewares } from "../middlewares/auth.middlewares.js";
+import { Router } from "express";
+const rota = Router();
 
 rota.post("/", authMiddlewares, criarTransacaoRota);
 rota.get("/", pesTransacaoRota);
-rota.get("/pesquisar", pesTituloRota);
+rota.get("/pesquisar", pesTipoRota);
 rota.get("/:id", pesquisaIDRota);
 
-
-export default rota;
+export default rota;    

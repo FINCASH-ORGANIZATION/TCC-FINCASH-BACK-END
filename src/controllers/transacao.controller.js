@@ -4,7 +4,7 @@ import {
     pestraService,
     contarTranService,
     pesIDService,
-    pesqTituloService
+    pesqTipoService
 } from "../services/transacao.service.js";
 import transacao from "../models/transacao.js";
 
@@ -74,7 +74,7 @@ const pesTransacaoRota = async (req, res) => {
     };
 
     /* Traz a requisição dos itens acima e faz um res(resposta) direto na tela. Já map ele cria um array que retorna 
-    os dados do tanto das transações quanto do os dados do próprio usuário. */
+    Os dados tanto das transações quanto dados do próprio usuário. */
     res.send({
         avancarURL,
         antigaURL,
@@ -82,7 +82,7 @@ const pesTransacaoRota = async (req, res) => {
         offset,
         total,
 
-        results: transacao.map(item => ({
+        results: transacao.map((item) => ({
             id: item._id,
             tipo: item.tipo,
             precoUnitario: item.precoUnitario,
@@ -115,25 +115,25 @@ const pesquisaIDRota = async (req, res) => {
     };
 };
 
-const pesTituloRota = async (req, res) => {
+const pesTipoRota = async (req, res) => {
     try {
-        const { titulo } = req.query;
+        const { tipo } = req.query;
 
-        const transacao = await pesqTituloService(titulo);
+        const transacao = await pesqTipoService(tipo);
 
         if (transacao.length === 0) {
-            return res.status(400).send({ mensagem: "Esse título não existe!" })
+            return res.status(400).send({ mensagem: "Essa transação não existe não existe!" })
         };
 
-        res.send({
-            transacao: {
-                id: transacao._id,
-                tipo: transacao.tipo,
-                precoUnitario: transacao.precoUnitario,
-                valorTotal: transacao.valorTotal,
-                data: transacao.data,
-                usuario: transacao.Usuario
-            },
+        return res.send({
+            results: transacao.map((item) => ({
+                id: item._id,
+                tipo: item.tipo,
+                precoUnitario: item.precoUnitario,
+                valorTotal: item.valorTotal,
+                data: item.data,
+                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
+            })),
         });
     }
     catch (error) {
@@ -146,5 +146,5 @@ export {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
-    pesTituloRota
+    pesTipoRota
 };
