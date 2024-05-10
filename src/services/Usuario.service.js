@@ -6,9 +6,9 @@ import Usuario from "../models/Usuario.js";
 const criarUsu = (body) => Usuario.create(body); //Cria o usuario com base no modelo importado contendo as informações do mesmo no banco
 const pesUsuService = () => Usuario.find(); //Pesquisa o usuario no banco
 const pesUsuIdService = (idUsuario) => Usuario.findById(idUsuario); // Pesquisa o ID do usuario no banco
-const UsuUpdateService = (id, nome, senha, email, telefone) => Usuario.findOneAndUpdate(
+const UsuUpdateService = (id, nome, senha, email, telefone, avatar) => Usuario.findOneAndUpdate(
     { _id: id },
-    { nome, senha, email, telefone });
+    { nome, senha, email, telefone, avatar });
 
 
 export default {
