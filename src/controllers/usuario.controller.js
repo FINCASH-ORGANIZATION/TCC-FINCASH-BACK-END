@@ -22,8 +22,8 @@ const criarUsu = async (req, res) => {
                 nome,
                 email,
                 senha,
-                avatar,
                 telefone,
+                avatar
             },
         });
     } catch (error) {
@@ -56,10 +56,10 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
 
 const UsuUpdate = async (req, res) => {
     try {
-        const { nome, senha, email, avatar, telefone } = req.body;
+        const { nome, senha, email, telefone, avatar } = req.body;
 
         //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
-        if (!nome && !senha && !email && !avatar && !telefone) {
+        if (!nome && !senha && !email && !telefone && !avatar) {
             res.status(400).json({ mensagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
         };
 
@@ -69,8 +69,8 @@ const UsuUpdate = async (req, res) => {
             nome,
             senha,
             email,
-            avatar,
-            telefone
+            telefone,
+            avatar
         );
 
         res.send({ mensagem: "Usuario alterado com sucesso" });
