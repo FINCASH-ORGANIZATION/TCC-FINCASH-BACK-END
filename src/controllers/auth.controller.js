@@ -33,31 +33,4 @@ const login = async (req, res) => {
     }
 }
 
-/*
-const esqueceuSenha = async (req, res) => {
-    const { senha } = req.body;
-
-    try {
-        const usuario = await esqueceuSenhaService(email);
-
-        if (!usuario) {
-            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" });
-        }
-
-        const senhaisValid = bcrypt.compareSync(senha, usuario.senha);
-
-        if (!senhaisValid) {
-            return res.status(404).send({ Mensagem: "Usuario ou senha incorreto" });
-        }
-
-        const token = geradorToken(usuario.id);
-
-        res.send({token});
-    }
-    catch (error) {
-        res.status(500).send(error.message); // Erro 500 significa que há um problema com alguma das bases do servidor
-    }
-}
-*/
-
 export { login }; 

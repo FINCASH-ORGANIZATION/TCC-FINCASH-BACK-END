@@ -25,7 +25,7 @@ const UsuarioSchema = new mongoose.Schema({
     senha: {
         type: String,
         required: true,
-        select: false
+        select: true
     },
     telefone: {
         type: String,
@@ -37,22 +37,14 @@ const UsuarioSchema = new mongoose.Schema({
         required: false,
     }
 });
-/* 
+
+// Assim que a senha for modificada será implementado novamente um hash de 10 voltas. Formando assim, um loop.
 UsuarioSchema.pre("save", async function (next) {
-    this.senha = await bcrypt.hash(this.senha, 10);
-
-    next();
-}); */
-
-UsuarioSchema.pre("save", async function () {
     if (this.isModified('senha')) {
-        this.senha = await Usuario.hash(this.senha, 10)
+        this.senha = await bcrypt.hash(this.senha, 10);
     }
-})
-UsuarioSchema.statics.hash = function (senha) {
-    return bcrypt.hash(senha, 10)
-}
-
+    next();
+});
 
 // Define que a variavel "UsuarioSchema" se transforme em um modulo do mongoose.
 const Usuario = mongoose.model('Usuario', UsuarioSchema);

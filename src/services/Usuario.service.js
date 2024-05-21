@@ -6,10 +6,18 @@ import Usuario from "../models/Usuario.js";
 const criarUsu = (body) => Usuario.create(body); //Cria o usuario com base no modelo importado contendo as informações do mesmo no banco
 const pesUsuService = () => Usuario.find(); //Pesquisa o usuario no banco
 const pesUsuIdService = (idUsuario) => Usuario.findById(idUsuario); // Pesquisa o ID do usuario no banco
-const UsuUpdateService = (id, nome, senha, email, telefone, avatar) => Usuario.findOneAndUpdate(
-    { _id: id },
-    { nome, senha, email, telefone, avatar });
+const UsuUpdateService = async (id, nome, senha, email, telefone, avatar) => {
+    const usuario = await Usuario.findById(id);
 
+    if (nome) usuario.nome = nome;
+    if (senha) usuario.senha = senha;
+    if (email) usuario.email = email;
+    if (telefone) usuario.telefone = telefone;
+    if (avatar) usuario.avatar = avatar;
+
+    await usuario.save();
+    return usuario;
+};
 
 export default {
     criarUsu,
