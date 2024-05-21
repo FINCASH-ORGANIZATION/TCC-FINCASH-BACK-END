@@ -37,12 +37,21 @@ const UsuarioSchema = new mongoose.Schema({
         required: false,
     }
 });
-
+/* 
 UsuarioSchema.pre("save", async function (next) {
     this.senha = await bcrypt.hash(this.senha, 10);
 
     next();
-});
+}); */
+
+UsuarioSchema.pre("save", async function () {
+    if (this.isModified('senha')) {
+        this.senha = await Usuario.hash(this.senha, 10)
+    }
+})
+UsuarioSchema.statics.hash = function (senha) {
+    return bcrypt.hash(senha, 10)
+}
 
 
 // Define que a variavel "UsuarioSchema" se transforme em um modulo do mongoose.
