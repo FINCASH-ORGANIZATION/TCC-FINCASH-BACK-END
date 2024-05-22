@@ -1,14 +1,13 @@
 import express from 'express'; // Express é um framework de desenvolvimento web que conecta o banco de dados com o Node.js/Servidor
 import connectDatabase from "./src/database/db.js"; // Importa a variável que armazena a conexão com banco de dados
 import dotenv from "dotenv"; // Bliblioteca "dot.env" do Node.js que habilita o uso de variáveis de ambiente
+import usuarioRota from "./src/routes/usuario.route.js";
+import authRota from "./src/routes/auth.route.js";
+import transacaoRota from "./src/routes/transacao.route.js"
 
 
 dotenv.config();
 const rota = express.Router();
-
-import usuarioRota from "./src/routes/usuario.route.js";
-import authRota from "./src/routes/auth.route.js";
-import transacaoRota from "./src/routes/transacao.route.js"
 
 
 connectDatabase() // Estabelece a conexão com o banco de dados

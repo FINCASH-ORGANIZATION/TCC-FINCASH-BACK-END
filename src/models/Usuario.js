@@ -25,7 +25,15 @@ const UsuarioSchema = new mongoose.Schema({
     senha: {
         type: String,
         required: true,
-        select: true
+        select: false
+    },
+    ResetTokenSenha: {
+        type: String,
+        select: false
+    },
+    expiracaoTokenSenha: {
+        type: Date,
+        select: false
     },
     telefone: {
         type: String,
