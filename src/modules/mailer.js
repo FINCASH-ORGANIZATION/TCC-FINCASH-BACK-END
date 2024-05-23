@@ -1,8 +1,9 @@
 import path from 'path';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars';
+import mailConfig from './mail.json' assert { type: 'json' };
 
-import { host, port, user, pass } from '../src/modules/mail.json';
+const { host, port, user, pass } = mailConfig;
 
 const transport = nodemailer.createTransport({
   host,
@@ -15,11 +16,13 @@ const transport = nodemailer.createTransport({
 
 transport.use('compile', hbs({
   viewEngine: {
-    defaultLayout: false,
-    partialsDir: path.resolve('../src/modules/mail.json')
+    extname: '.html',
+    layoutsDir: 'src/modules/mail/',
+    defaultLayout: null, 
+    partialsDir: 'src/modules/mail/',
   },
-  viewPath: path.resolve('../src/modules/mail.json'),
-  extName: '.html',
+  viewPath: 'src/modules/mail/',
+  extName: '.html'
 }));
 
 export default transport;
