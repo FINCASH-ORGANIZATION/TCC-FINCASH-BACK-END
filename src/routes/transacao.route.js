@@ -3,14 +3,14 @@ import {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
-    pesTipoRota
+    pesDescricaoRota
 } from "../controllers/transacao.controller.js";
 import { Router } from "express";
 const rota = Router();
 
 rota.post("/", authMiddlewares, criarTransacaoRota);
 rota.get("/", pesTransacaoRota);
-rota.get("/pesquisar", pesTipoRota);
+rota.get("/pesquisar", pesDescricaoRota);
 rota.get("/:id", pesquisaIDRota);
 
 export default rota;    

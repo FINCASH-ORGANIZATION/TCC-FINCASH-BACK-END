@@ -1,9 +1,9 @@
 import mongoose, { Types } from "mongoose";
-import categoriaTransacao from "../models/categoriaTransacao.js";
+/* import categoriaTransacao from "../models/categoriaTransacao.js"; */
 
 const transacaoSchema = new mongoose.Schema({
     // Tipo de transação (compra, venda, dividendos, etc.)
-    tipo: {
+    descricao: {
         type: String,
         required: true,
     },

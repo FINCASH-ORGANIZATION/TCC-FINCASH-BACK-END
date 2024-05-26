@@ -4,26 +4,26 @@ import {
     pestraService,
     contarTranService,
     pesIDService,
-    pesqTipoService
+    pesqDescricaoService
 } from "../services/transacao.service.js";
 import transacao from "../models/transacao.js";
 
 const criarTransacaoRota = async (req, res) => {
     try {
-        const { tipo, precoUnitario, valorTotal } = req.body;
+        const { descricao, precoUnitario, valorTotal } = req.body;
 
-        if (!tipo || !precoUnitario || !valorTotal) {
+        if (!descricao || !precoUnitario || !valorTotal) {
             res.status(400).send({ mensagem: "Por favor, preencha todos os campos para se registrar!" });
         }
 
         await criartranService({
-            tipo,
+            descricao,
             precoUnitario,
             valorTotal,
             Usuario: req.UsuarioId,
         });
 
-        res.send(201)
+        res.status(200)
     }
     catch (error) {
         res.status(500).send({ message: error.message });
@@ -54,8 +54,8 @@ const pesTransacaoRota = async (req, res) => {
     // Calcula o próximo deslocamento (avançar) adicionando o limite (limit) ao deslocamento atual (offset).
     const avancar = offset + limit;
 
-    /* Verifica se o avanço não ultrapassa o total de transações; Se não ultrapassar, 
-    cria a URL de avanço com os parâmetros limit e offset;
+    /* Verifica se o avanço não ultrapassa o total de transações; 
+    Se não ultrapassar, cria a URL de avanço com os parâmetros limit e offset;
     Caso contrário, define a mensagem "Sem registros!" indicando que o offset está nos Sem registros.*/
     const avancarURL = avancar < total ? `${currentURL}?limit=${limit}&offset=${avancar}` : "Sem registros!";
 
@@ -73,7 +73,7 @@ const pesTransacaoRota = async (req, res) => {
         })
     };
 
-    /* Traz a requisição dos itens acima e faz um res(resposta) direto na tela. Já map ele cria um array que retorna 
+    /* Traz a requisição dos itens acima e faz um res(resposta) direto na tela. Já o map ele cria um array que retorna 
     Os dados tanto das transações quanto dados do próprio usuário. */
     res.send({
         avancarURL,
@@ -84,7 +84,7 @@ const pesTransacaoRota = async (req, res) => {
 
         results: transacao.map((item) => ({
             id: item._id,
-            tipo: item.tipo,
+            descricao: item.descricao,
             precoUnitario: item.precoUnitario,
             valorTotal: item.valorTotal,
             data: item.data,
@@ -102,7 +102,7 @@ const pesquisaIDRota = async (req, res) => {
         res.send({
             transacao: {
                 id: transacao._id,
-                tipo: transacao.tipo,
+                descricao: transacao.descricao,
                 precoUnitario: transacao.precoUnitario,
                 valorTotal: transacao.valorTotal,
                 data: transacao.data,
@@ -115,20 +115,42 @@ const pesquisaIDRota = async (req, res) => {
     };
 };
 
-const pesTipoRota = async (req, res) => {
+/* const pesquisaIDRota = async (req, res) => {
     try {
-        const { tipo } = req.query;
+        const { id } = req.params;
 
-        const transacao = await pesqTipoService(tipo);
+        const transacao = await pesIDService(id);
+
+        res.send({
+            transacao: {
+                id: transacao._id,
+                descricao: transacao.descricao,
+                precoUnitario: transacao.precoUnitario,
+                valorTotal: transacao.valorTotal,
+                data: transacao.data,
+                usuario: transacao.Usuario ? transacao.Usuario : "Usuário não encontrado!"
+            },
+        });
+    }
+    catch (error) {
+        res.status(500).send({ message: error.message });
+    };
+}; */
+
+const pesDescricaoRota = async (req, res) => {
+    try {
+        const { descricao } = req.query;
+
+        const transacao = await pesqDescricaoService(descricao);
 
         if (transacao.length === 0) {
-            return res.status(400).send({ mensagem: "Essa transação não existe não existe!" })
+            return res.status(400).send({ mensagem: "Transação não localizada no servidor!" })
         };
 
         return res.send({
             results: transacao.map((item) => ({
                 id: item._id,
-                tipo: item.tipo,
+                descricao: item.descricao,
                 precoUnitario: item.precoUnitario,
                 valorTotal: item.valorTotal,
                 data: item.data,
@@ -146,5 +168,5 @@ export {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
-    pesTipoRota
+    pesDescricaoRota
 };

@@ -30,7 +30,7 @@ const login = async (req, res) => {
         res.send({ token });
     }
     catch (error) {
-        res.status(500).send(error.message); // Erro 500 significa que há um problema com alguma das bases do servidor
+        res.status(400).send(error.message);
     }
 };
 

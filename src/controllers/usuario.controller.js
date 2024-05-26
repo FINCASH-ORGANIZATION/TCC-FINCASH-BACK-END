@@ -27,7 +27,7 @@ const criarUsu = async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).send({ message: error.message }); // Erro 500 Quando o servidor cai inesperadamente
+        res.status(400).send(error.message);
     };
 };
 

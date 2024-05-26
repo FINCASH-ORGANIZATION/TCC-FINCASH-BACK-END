@@ -81,7 +81,7 @@ const atualizarSenha = async (req, res) => {
         res.status(200).send({ Mensagem: 'Senha atualizada com sucesso!' });
     }
     catch (error) {
-        res.status(400).send({ Mensagem: "Não foi possível atualizar a senha!" });
+        res.status(400).send(error.message);
     }
 };
 

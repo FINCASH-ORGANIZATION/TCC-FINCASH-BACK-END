@@ -11,18 +11,18 @@ dotenv.config();
 const rota = express.Router();
 
 
-connectDatabase() // Estabelece a conexão com o banco de dados
+connectDatabase(); // Estabelece a conexão com o banco de dados
 
 const port = process.env.PORT || 3000;
 
-const app = express() // Define que o express será utilizado pelo app 
+const app = express(); // Define que o express será utilizado pelo app 
 
-app.use(express.json()) // Define que o express irá receber dados em json
-app.use("/usuario", usuarioRota) // Define a rota do usuário
-app.use("/auth", authRota) // Define a rota de autenticação do usuario
-app.use("/transacao", transacaoRota)  // Define a rota da transação
-app.use("/senha", esqueceuSenhaRota)  // Define a rota da para redefinir a senha
+app.use(express.json()); // Define que o express irá receber dados em json
+app.use("/usuario", usuarioRota); // Define a rota do usuário
+app.use("/auth", authRota); // Define a rota de autenticação do usuario
+app.use("/transacao", transacaoRota); // Define a rota da transação
+app.use("/senha", esqueceuSenhaRota); // Define a rota da para redefinir a senha
 
 app.listen(port, () => { // Inicia o servidor
     console.log(`A porta está aberta em: ${port}`)
-})  
+});
