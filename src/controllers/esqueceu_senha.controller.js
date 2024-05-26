@@ -1,7 +1,8 @@
-import Usuario from "../models/Usuario.js";
 import crypto from 'crypto';
+import error from 'console';
+import bcrypt from 'bcrypt';
+import Usuario from '../models/Usuario.js';
 import mailer from '../services/mailer.service.js';
-import error from "console";
 
 
 const esqueceuSenha = async (req, res) => {
@@ -50,7 +51,7 @@ const atualizarSenha = async (req, res) => {
 
     try {
         const usuario = await Usuario.findOne({ email })
-            .select('+resetTokenSenha +expiracaoTokenSenha');
+            .select('+resetTokenSenha +expiracaoTokenSenha +senha');
 
         if (!usuario) {
             return res.status(404).send({ Mensagem: "Usuario incorreto" });
@@ -66,6 +67,12 @@ const atualizarSenha = async (req, res) => {
 
         if (tempoExpiracao > usuario.expiracaoTokenSenha)
             return res.status(400).send({ error: 'Token expirado. Por favor, gere outro token' });
+
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+        if (senhaValida) {
+            return res.status(400).send({ Mensagem: 'A nova senha não pode ser igual à senha atual' });
+        }
 
         usuario.senha = senha;
 
