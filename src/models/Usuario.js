@@ -25,7 +25,7 @@ const UsuarioSchema = new mongoose.Schema({
     senha: {
         type: String,
         required: true,
-        select: true,
+        select: false,
     },
     resetTokenSenha: {
         type: String,

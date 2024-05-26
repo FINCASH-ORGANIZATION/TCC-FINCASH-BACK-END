@@ -3,7 +3,8 @@ import connectDatabase from "./src/database/db.js"; // Importa a variável que a
 import dotenv from "dotenv"; // Bliblioteca "dot.env" do Node.js que habilita o uso de variáveis de ambiente
 import usuarioRota from "./src/routes/usuario.route.js";
 import authRota from "./src/routes/auth.route.js";
-import transacaoRota from "./src/routes/transacao.route.js"
+import transacaoRota from "./src/routes/transacao.route.js";
+import esqueceuSenhaRota from "./src/routes/esqueceuSenha.route.js";
 
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json()) // Define que o express irá receber dados em json
 app.use("/usuario", usuarioRota) // Define a rota do usuário
 app.use("/auth", authRota) // Define a rota de autenticação do usuario
 app.use("/transacao", transacaoRota)  // Define a rota da transação
+app.use("/senha", esqueceuSenhaRota)  // Define a rota da para redefinir a senha
 
 app.listen(port, () => { // Inicia o servidor
     console.log(`A porta está aberta em: ${port}`)
