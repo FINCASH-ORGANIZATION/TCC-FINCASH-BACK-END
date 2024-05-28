@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 const connectDatabase = () => {
     console.log('Esperando a conexão com a database')
 
+    // process.env, usado para acessar as variáveis de ambiente, apenas as que existam dentro da aplicação que estamos utilizando
     mongoose
-        // process.env, usado para acessar as variáveis de ambiente, apenas as que existam dentro da aplicação que estamos utilizando
-    .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }
+        .connect(process.env.MONGODB_URI, { useUnifiedTopology: true }
         ).then(() => console.log("Banco de dados foi conectado!")).catch((error) => console.log("Banco de dados NÃO conectado"));
 };
 

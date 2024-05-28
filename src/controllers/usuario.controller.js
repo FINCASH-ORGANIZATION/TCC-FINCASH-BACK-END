@@ -1,4 +1,6 @@
 import usuarioService from "../services/Usuario.service.js";
+import Usuario from "../models/Usuario.js";
+import bcrypt from 'bcrypt';
 
 const criarUsu = async (req, res) => {
     try {
@@ -56,29 +58,48 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
 
 const UsuUpdate = async (req, res) => {
     try {
+        const { id, Usuario } = req;
         const { nome, senha, email, telefone, avatar } = req.body;
 
-        //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE
         if (!nome && !senha && !email && !telefone && !avatar) {
-            res.status(400).json({ mensagem: "Por favor, preencha pelo menos um campo para fazer a alteração!" })
+            return res.status(400).json({ mensagem: "Preencha pelo menos um campo para fazer a alteração!" });
+        }
+
+        const usuarioAtualizado = {
+            nome: nome || Usuario.nome,
+            senha: senha || Usuario.senha,
+            email: email || Usuario.email,
+            telefone: telefone || Usuario.telefone,
+            avatar: avatar || Usuario.avatar
         };
 
-        const { id, Usuario } = req;
+        if (
+            usuarioAtualizado.nome === Usuario.nome &&
+            usuarioAtualizado.senha === Usuario.senha &&
+            usuarioAtualizado.email === Usuario.email &&
+            usuarioAtualizado.telefone === Usuario.telefone &&
+            usuarioAtualizado.avatar === Usuario.avatar
+        ) {
+            return res.status(400).json({ mensagem: "Você precisa fazer alguma alteração para atualizar os dados!" });
+        }
+
         await usuarioService.UsuUpdateService(
             id,
-            nome,
-            senha,
-            email,
-            telefone,
-            avatar
+            usuarioAtualizado.nome,
+            usuarioAtualizado.senha,
+            usuarioAtualizado.email,
+            usuarioAtualizado.telefone,
+            usuarioAtualizado.avatar
         );
 
         res.send({ mensagem: "Usuario alterado com sucesso" });
 
     } catch (error) {
+        console.log(error)
         res.status(500).send({ message: error.message });
     };
 };
+
 
 //exporta os modules, o que cria o usuario no bd, o que pesquisa, o que pesquisa pelo ID e o que faz update
 export default {

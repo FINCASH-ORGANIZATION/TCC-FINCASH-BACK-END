@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import Usuario from '../models/Usuario.js';
 import mailer from '../services/mailer.service.js';
 
-
 const esqueceuSenha = async (req, res) => {
     const { email } = req.body;
 
@@ -36,7 +35,7 @@ const esqueceuSenha = async (req, res) => {
             if (error) {
                 console.log(error)
                 return res.status(400).send({ Mensagem: 'Não foi possível alterar a senha por email!' });
-            }
+            };
 
             return res.status(200).send({ Mensagem: 'E-mail enviado com sucesso!' });
         });
@@ -72,7 +71,7 @@ const atualizarSenha = async (req, res) => {
 
         if (senhaValida) {
             return res.status(400).send({ Mensagem: 'A nova senha não pode ser igual à senha atual' });
-        }
+        };
 
         usuario.senha = senha;
 
