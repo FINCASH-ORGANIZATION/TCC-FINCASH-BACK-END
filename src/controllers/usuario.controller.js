@@ -1,6 +1,4 @@
 import usuarioService from "../services/Usuario.service.js";
-import Usuario from "../models/Usuario.js";
-import bcrypt from 'bcrypt';
 
 const criarUsu = async (req, res) => {
     try {
@@ -63,7 +61,7 @@ const UsuUpdate = async (req, res) => {
 
         if (!nome && !senha && !email && !telefone && !avatar) {
             return res.status(400).json({ mensagem: "Preencha pelo menos um campo para fazer a alteração!" });
-        }
+        };
 
         const usuarioAtualizado = {
             nome: nome || Usuario.nome,
@@ -95,7 +93,6 @@ const UsuUpdate = async (req, res) => {
         res.send({ mensagem: "Usuario alterado com sucesso" });
 
     } catch (error) {
-        console.log(error)
         res.status(500).send({ message: error.message });
     };
 };
