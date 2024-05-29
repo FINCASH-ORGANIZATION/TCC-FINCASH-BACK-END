@@ -5,10 +5,13 @@ import {
     pesIDService,
     pesqDescricaoService,
     pesUsuarioService,
+    atualizarTransService,
     deletarTransService
 } from "../services/transacao.service.js";
 
 import mongoose from "mongoose";
+
+/* Função criar transação  */
 
 const criarTransacaoRota = async (req, res) => {
     try {
@@ -31,6 +34,8 @@ const criarTransacaoRota = async (req, res) => {
         res.status(500).send({ message: error.message });
     };
 };
+
+/* Função que retorna todas as transções cadastradas no banco de dados de todos os usuários  */
 
 const pesTransacaoRota = async (req, res) => {
     let { limit, offset } = req.query;
@@ -95,6 +100,8 @@ const pesTransacaoRota = async (req, res) => {
     });
 };
 
+/* Função para pesquisar a transação pelo id. (OBS: toda transação que é feita, o MongoDB cria um id automaticamente para a mesma) */
+
 const pesquisaIDRota = async (req, res) => {
     try {
         const { id } = req.params;
@@ -116,6 +123,8 @@ const pesquisaIDRota = async (req, res) => {
         res.status(500).send({ message: error.message });
     };
 };
+
+/* Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela  */
 
 const pesDescricaoRota = async (req, res) => {
     try {
@@ -143,6 +152,8 @@ const pesDescricaoRota = async (req, res) => {
     };
 };
 
+/* Função que retorna para o usuário todas as transação que estão na sua conta  */
+
 const pesUsuarioRota = async (req, res) => {
     try {
         const id = req.UsuarioId;
@@ -165,6 +176,43 @@ const pesUsuarioRota = async (req, res) => {
         res.status(500).send({ message: error.message });
     }
 };
+
+/* Função para o usuário atualizar os dados de dentro da transação que ele estiver manipulando */
+
+const atualizarTrans = async (req, res) => {
+    try {
+        const { descricao, precoUnitario, valorTotal } = req.body;
+        const { id } = req.params; // Correção: Obtenha o ID diretamente de req.params
+
+        if (!descricao && !precoUnitario && !valorTotal) {
+            return res.status(400).send({ mensagem: 'Não foi possível atualizar a transação' });
+        }
+
+        // Correção: Obtenha a transação com o ID fornecido
+        const transacao = await pesIDService(id);
+
+        // Verifica se a transação existe
+        if (!transacao) {
+            return res.status(404).send({ mensagem: 'Transação não encontrada' });
+        }
+
+        // Verifica se o usuário que está tentando atualizar é o proprietário da transação
+        if (transacao.Usuario._id.toString() != req.UsuarioId) {
+            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
+        }
+
+        // Atualiza a transação com os novos dados
+        await atualizarTransService(id, descricao, precoUnitario, valorTotal);
+
+        return res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
+
+    } catch (error) {
+        console.log('Erro ao atualizar transação:', error);
+        res.status(500).send({ mensagem: error.message });
+    }
+};
+
+/* Função para deletar as transação. No caso só é deletaada pelo id. Apenas o usuário que criou a transação consegue deletar */
 
 const deletarTrans = async (req, res) => {
     try {
@@ -206,5 +254,6 @@ export {
     pesquisaIDRota,
     pesDescricaoRota,
     pesUsuarioRota,
-    deletarTrans
+    deletarTrans,
+    atualizarTrans
 };

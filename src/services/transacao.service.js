@@ -17,6 +17,8 @@ const pesqDescricaoService = (descricao) => transacao.find({
 const pesUsuarioService = (id) => transacao.find({ Usuario: id }).sort({ _id: -1 })
     .populate('Usuario');
 
+const atualizarTransService = (id, descricao, precoUnitario, valorTotal) => transacao.findOneAndUpdate({ _id: id }, { descricao, precoUnitario, valorTotal }, { rawResult: true });
+
 const deletarTransService = (id) => transacao.findByIdAndDelete({ _id: id });
 
 export {
@@ -26,5 +28,6 @@ export {
     pesIDService,
     pesqDescricaoService,
     pesUsuarioService,
+    atualizarTransService,
     deletarTransService
 };
