@@ -17,11 +17,14 @@ const pesqDescricaoService = (descricao) => transacao.find({
 const pesUsuarioService = (id) => transacao.find({ Usuario: id }).sort({ _id: -1 })
     .populate('Usuario');
 
+const deletarTransService = (id) => transacao.findByIdAndDelete({ _id: id });
+
 export {
     criartranService,
     pestraService,
     contarTranService,
     pesIDService,
     pesqDescricaoService,
-    pesUsuarioService
+    pesUsuarioService,
+    deletarTransService
 };

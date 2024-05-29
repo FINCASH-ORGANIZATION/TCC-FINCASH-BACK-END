@@ -44,7 +44,7 @@ export const authMiddlewares = (req, res, next) => {
             return next();
         });
     }
-    catch (err) {
+    catch (error) {
         res.status(500).send({ message: error.message });
     };
 };

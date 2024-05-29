@@ -4,7 +4,8 @@ import {
     pesTransacaoRota,
     pesquisaIDRota,
     pesDescricaoRota,
-    pesUsuarioRota
+    pesUsuarioRota,
+    deletarTrans
 } from "../controllers/transacao.controller.js";
 import { Router } from "express";
 
@@ -15,7 +16,7 @@ rota.get("/", pesTransacaoRota);
 rota.get("/pesquisar", pesDescricaoRota);
 rota.get("/pesUsuarioRota", authMiddlewares, pesUsuarioRota);
 
-
 rota.get("/:id", pesquisaIDRota);
+rota.delete("/:id", authMiddlewares, deletarTrans);
 
 export default rota;    

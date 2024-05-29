@@ -1,13 +1,14 @@
-import { query } from "express";
 import {
     criartranService,
     pestraService,
     contarTranService,
     pesIDService,
     pesqDescricaoService,
-    pesUsuarioService
+    pesUsuarioService,
+    deletarTransService
 } from "../services/transacao.service.js";
-import transacao from "../models/transacao.js";
+
+import mongoose from "mongoose";
 
 const criarTransacaoRota = async (req, res) => {
     try {
@@ -165,10 +166,45 @@ const pesUsuarioRota = async (req, res) => {
     }
 };
 
+const deletarTrans = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Converte o id para ObjectId
+        const objectId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null;
+
+        if (!objectId) {
+            return res.status(400).send({ mensagem: 'ID de transação inválido' });
+        }
+
+        const transacao = await pesIDService(objectId);
+
+        if (!transacao) {
+            return res.status(404).send({ mensagem: 'Transação não encontrada' });
+        }
+
+        const usuarioTransacaoId = transacao.Usuario._id.toString();
+        const usuarioLogadoId = req.UsuarioId.toString();
+
+        if (usuarioTransacaoId !== usuarioLogadoId) {
+            return res.status(400).send({ mensagem: "Você não pode deletar essa transação!" });
+        }
+
+        await deletarTransService(objectId);
+
+        return res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
+
+    } catch (error) {
+        res.status(500).send({ mensagem: error.message });
+    }
+};
+
+
 export {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
     pesDescricaoRota,
-    pesUsuarioRota
+    pesUsuarioRota,
+    deletarTrans
 };
