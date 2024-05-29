@@ -1,6 +1,4 @@
-import { error } from "console";
 import bcrypt from "bcrypt";
-import Usuario from "../models/Usuario.js";
 import { loginService, geradorToken } from "../services/auth.service.js";
 
 
@@ -27,7 +25,7 @@ const login = async (req, res) => {
 
         const token = geradorToken(usuario.id);
 
-        res.send({ token });
+        res.send({message: `Login efetuado com sucesso. Aqui está o seu token de acesso: ${token}` });
     }
     catch (error) {
         res.status(400).send(error.message);

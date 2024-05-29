@@ -31,7 +31,7 @@ export const authMiddlewares = (req, res, next) => {
                 console.log(error)
                 return res.status(401).send({ mensagem: "Token Inválido!" });
             }
-            // Faz a validação para ver se o usuário existe e tira o objeto dele (neste caso o objeto  está dentro do decoded, resumindo o Id)
+            // Faz a validação para ver se o usuário existe e tira o objeto dele (neste caso o objeto  está dentro do decoded, ou seja, o Id)
             const Usuario = await UsuarioService.pesUsuIdService(decoded.id);
 
             if (!Usuario || !Usuario.id) {
@@ -45,6 +45,6 @@ export const authMiddlewares = (req, res, next) => {
         });
     }
     catch (err) {
-        res.status(500).send(err.mensagem);
+        res.status(500).send({ message: error.message });
     };
 };

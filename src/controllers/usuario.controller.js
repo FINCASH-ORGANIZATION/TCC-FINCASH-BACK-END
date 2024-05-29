@@ -79,7 +79,7 @@ const UsuUpdate = async (req, res) => {
             usuarioAtualizado.avatar === Usuario.avatar
         ) {
             return res.status(400).json({ mensagem: "Você precisa fazer alguma alteração para atualizar os dados!" });
-        }
+        };
 
         await usuarioService.UsuUpdateService(
             id,

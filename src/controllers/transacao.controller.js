@@ -4,7 +4,8 @@ import {
     pestraService,
     contarTranService,
     pesIDService,
-    pesqDescricaoService
+    pesqDescricaoService,
+    pesUsuarioService
 } from "../services/transacao.service.js";
 import transacao from "../models/transacao.js";
 
@@ -23,7 +24,7 @@ const criarTransacaoRota = async (req, res) => {
             Usuario: req.UsuarioId,
         });
 
-        res.status(200)
+        res.status(200).send({ mensagem: "Uma Nova transação foi efetuada!" })
     }
     catch (error) {
         res.status(500).send({ message: error.message });
@@ -115,28 +116,6 @@ const pesquisaIDRota = async (req, res) => {
     };
 };
 
-/* const pesquisaIDRota = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const transacao = await pesIDService(id);
-
-        res.send({
-            transacao: {
-                id: transacao._id,
-                descricao: transacao.descricao,
-                precoUnitario: transacao.precoUnitario,
-                valorTotal: transacao.valorTotal,
-                data: transacao.data,
-                usuario: transacao.Usuario ? transacao.Usuario : "Usuário não encontrado!"
-            },
-        });
-    }
-    catch (error) {
-        res.status(500).send({ message: error.message });
-    };
-}; */
-
 const pesDescricaoRota = async (req, res) => {
     try {
         const { descricao } = req.query;
@@ -163,10 +142,33 @@ const pesDescricaoRota = async (req, res) => {
     };
 };
 
+const pesUsuarioRota = async (req, res) => {
+    try {
+        const id = req.UsuarioId;
+        console.log('Valor de req.UsuarioId:', id);
+
+        const transacao = await pesUsuarioService(id);
+
+        return res.send({
+            results: transacao.map((item) => ({
+                id: item._id,
+                descricao: item.descricao,
+                precoUnitario: item.precoUnitario,
+                valorTotal: item.valorTotal,
+                data: item.data,
+                usuario: item.Usuario
+            })),
+        });
+    } catch (error) {
+        console.log('Erro ao buscar transações:', error);
+        res.status(500).send({ message: error.message });
+    }
+};
 
 export {
     criarTransacaoRota,
     pesTransacaoRota,
     pesquisaIDRota,
-    pesDescricaoRota
+    pesDescricaoRota,
+    pesUsuarioRota
 };

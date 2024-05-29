@@ -1,6 +1,4 @@
-import { populate } from "dotenv";
 import transacao from "../models/transacao.js";
-import UsuarioSchema from "../models/Usuario.js"
 
 const criartranService = (body) => transacao.create(body);
 
@@ -16,10 +14,14 @@ const pesqDescricaoService = (descricao) => transacao.find({
     .sort({ _id: -1 })
     .populate('Usuario');
 
+const pesUsuarioService = (id) => transacao.find({ Usuario: id }).sort({ _id: -1 })
+    .populate('Usuario');
+
 export {
     criartranService,
     pestraService,
     contarTranService,
     pesIDService,
-    pesqDescricaoService
+    pesqDescricaoService,
+    pesUsuarioService
 };
