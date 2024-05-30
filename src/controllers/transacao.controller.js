@@ -8,12 +8,11 @@ import {
     atualizarTransService,
     deletarTransService
 } from "../services/transacao.service.js";
-
 import mongoose from "mongoose";
 
 /* Função criar transação  */
 
-const criarTransacaoRota = async (req, res) => {
+export const criarTransacaoRota = async (req, res) => {
     try {
         const { descricao, precoUnitario, valorTotal } = req.body;
 
@@ -37,7 +36,7 @@ const criarTransacaoRota = async (req, res) => {
 
 /* Função que retorna todas as transções cadastradas no banco de dados de todos os usuários  */
 
-const pesTransacaoRota = async (req, res) => {
+export const pesTransacaoRota = async (req, res) => {
     let { limit, offset } = req.query;
 
     limit = Number(limit);
@@ -102,7 +101,7 @@ const pesTransacaoRota = async (req, res) => {
 
 /* Função para pesquisar a transação pelo id. (OBS: toda transação que é feita, o MongoDB cria um id automaticamente para a mesma) */
 
-const pesquisaIDRota = async (req, res) => {
+export const pesquisaIDRota = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -126,7 +125,7 @@ const pesquisaIDRota = async (req, res) => {
 
 /* Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela  */
 
-const pesDescricaoRota = async (req, res) => {
+export const pesDescricaoRota = async (req, res) => {
     try {
         const { descricao } = req.query;
 
@@ -154,7 +153,7 @@ const pesDescricaoRota = async (req, res) => {
 
 /* Função que retorna para o usuário todas as transação que estão na sua conta  */
 
-const pesUsuarioRota = async (req, res) => {
+export const pesUsuarioRota = async (req, res) => {
     try {
         const id = req.UsuarioId;
         console.log('Valor de req.UsuarioId:', id);
@@ -179,16 +178,16 @@ const pesUsuarioRota = async (req, res) => {
 
 /* Função para o usuário atualizar os dados de dentro da transação que ele estiver manipulando */
 
-const atualizarTrans = async (req, res) => {
+export const atualizarTrans = async (req, res) => {
     try {
         const { descricao, precoUnitario, valorTotal } = req.body;
-        const { id } = req.params; // Correção: Obtenha o ID diretamente de req.params
+        const { id } = req.params;
 
         if (!descricao && !precoUnitario && !valorTotal) {
             return res.status(400).send({ mensagem: 'Não foi possível atualizar a transação' });
         }
 
-        // Correção: Obtenha a transação com o ID fornecido
+        // Obtem a transação com o ID fornecido pelo usuário
         const transacao = await pesIDService(id);
 
         // Verifica se a transação existe
@@ -196,7 +195,7 @@ const atualizarTrans = async (req, res) => {
             return res.status(404).send({ mensagem: 'Transação não encontrada' });
         }
 
-        // Verifica se o usuário que está tentando atualizar é o proprietário da transação
+        // Verifica se o usuário que está tentando atualizar é o mesmo da transação
         if (transacao.Usuario._id.toString() != req.UsuarioId) {
             return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
         }
@@ -207,37 +206,37 @@ const atualizarTrans = async (req, res) => {
         return res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
 
     } catch (error) {
-        console.log('Erro ao atualizar transação:', error);
         res.status(500).send({ mensagem: error.message });
     }
 };
 
 /* Função para deletar as transação. No caso só é deletaada pelo id. Apenas o usuário que criou a transação consegue deletar */
 
-const deletarTrans = async (req, res) => {
+export const deletarTrans = async (req, res) => {
     try {
         const { id } = req.params;
 
         // Converte o id para ObjectId
         const objectId = mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null;
 
+        // Verifica se o id da transação é válido
         if (!objectId) {
             return res.status(400).send({ mensagem: 'ID de transação inválido' });
         }
 
         const transacao = await pesIDService(objectId);
 
+        // Verifica se a transação existe
         if (!transacao) {
             return res.status(404).send({ mensagem: 'Transação não encontrada' });
         }
 
-        const usuarioTransacaoId = transacao.Usuario._id.toString();
-        const usuarioLogadoId = req.UsuarioId.toString();
-
-        if (usuarioTransacaoId !== usuarioLogadoId) {
-            return res.status(400).send({ mensagem: "Você não pode deletar essa transação!" });
+        // Verifica se o usuário que está tentando deletar a transação é o mesmo
+        if (transacao.Usuario._id.toString() != req.UsuarioId) {
+            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
         }
 
+        // Deleta a transação
         await deletarTransService(objectId);
 
         return res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
@@ -245,15 +244,4 @@ const deletarTrans = async (req, res) => {
     } catch (error) {
         res.status(500).send({ mensagem: error.message });
     }
-};
-
-
-export {
-    criarTransacaoRota,
-    pesTransacaoRota,
-    pesquisaIDRota,
-    pesDescricaoRota,
-    pesUsuarioRota,
-    deletarTrans,
-    atualizarTrans
 };

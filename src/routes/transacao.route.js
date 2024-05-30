@@ -1,4 +1,3 @@
-import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import {
     criarTransacaoRota,
     pesTransacaoRota,
@@ -8,6 +7,7 @@ import {
     atualizarTrans,
     deletarTrans
 } from "../controllers/transacao.controller.js";
+import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import { Router } from "express";
 
 const rota = Router();

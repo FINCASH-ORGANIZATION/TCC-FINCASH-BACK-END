@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import UsuarioService from "../services/Usuario.service.js";
+import { pesUsuIdService } from "../services/Usuario.service.js";
 
 dotenv.config();
+
 // Parte onde faz a autenticação e autorização do usuário, assim que autorizado, todo o acesso que ele tem dentro do servidor será liberado.
 export const authMiddlewares = (req, res, next) => {
     try {
@@ -32,13 +33,12 @@ export const authMiddlewares = (req, res, next) => {
                 return res.status(401).send({ mensagem: "Token Inválido!" });
             }
             // Faz a validação para ver se o usuário existe e tira o objeto dele (neste caso o objeto  está dentro do decoded, ou seja, o Id)
-            const Usuario = await UsuarioService.pesUsuIdService(decoded.id);
+            const Usuario = await pesUsuIdService(decoded.id);
 
             if (!Usuario || !Usuario.id) {
                 return res.status(401).send({ mensagem: "Token Inválido!" });
             }
-            // Recebe o objeto (Id) e envia para o 'Usuario'. Que é enviado para o 'transação.controller', assim o banco terá acesso ao Id
-            // do Usuário que está logado.
+            // Recebe o objeto (Id) e envia para o 'Usuario',assim é devolvido para o banco, assim terá acesso ao Id do Usuário que está logado.
             req.UsuarioId = Usuario._id;
 
             return next();

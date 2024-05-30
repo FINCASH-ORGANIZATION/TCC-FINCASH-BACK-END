@@ -1,10 +1,9 @@
 import crypto from 'crypto';
-import error from 'console';
 import bcrypt from 'bcrypt';
 import Usuario from '../models/Usuario.js';
 import mailer from '../services/mailer.service.js';
 
-const esqueceuSenha = async (req, res) => {
+export const esqueceuSenha = async (req, res) => {
     const { email } = req.body;
 
     try {
@@ -45,7 +44,7 @@ const esqueceuSenha = async (req, res) => {
     };
 };
 
-const atualizarSenha = async (req, res) => {
+export const atualizarSenha = async (req, res) => {
     const { email, senhatoken, senha } = req.body;
 
     try {
@@ -83,5 +82,3 @@ const atualizarSenha = async (req, res) => {
         res.status(400).send(error.message);
     }
 };
-
-export { esqueceuSenha, atualizarSenha };

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { loginService, geradorToken } from "../services/auth.service.js";
 
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
     const { email, senha } = req.body;
 
     /* 
@@ -31,5 +31,3 @@ const login = async (req, res) => {
         res.status(400).send(error.message);
     }
 };
-
-export { login }; 

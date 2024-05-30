@@ -3,10 +3,10 @@
 
 import Usuario from "../models/Usuario.js";
 
-const criarUsu = (body) => Usuario.create(body); //Cria o usuario com base no modelo importado contendo as informações do mesmo no banco
-const pesUsuService = () => Usuario.find(); //Pesquisa o usuario no banco
-const pesUsuIdService = (idUsuario) => Usuario.findById(idUsuario); // Pesquisa o ID do usuario no banco
-const UsuUpdateService = async (id, nome, senha, email, telefone, avatar, resetTokenSenha, expiracaoTokenSenha) => {
+export const criarUsuService = (body) => Usuario.create(body); //Cria o usuario com base no modelo importado contendo as informações do mesmo no banco
+export const pesUsuService = () => Usuario.find(); //Pesquisa o usuario no banco
+export const pesUsuIdService = (idUsuario) => Usuario.findById(idUsuario); // Pesquisa o ID do usuario no banco
+export const atualizarUsuService = async (id, nome, senha, email, telefone, avatar, resetTokenSenha, expiracaoTokenSenha) => {
     const usuario = await Usuario.findById(id);
 
     if (nome) usuario.nome = nome;
@@ -22,9 +22,4 @@ const UsuUpdateService = async (id, nome, senha, email, telefone, avatar, resetT
     return usuario;
 };
 
-export default {
-    criarUsu,
-    pesUsuService,
-    pesUsuIdService,
-    UsuUpdateService,
-};
+export const deletarUsuService = (id) => Usuario.findByIdAndDelete({ _id: id });

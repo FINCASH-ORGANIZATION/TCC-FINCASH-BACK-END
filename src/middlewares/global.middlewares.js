@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import usuarioService from "../services/Usuario.service.js";
+import { pesUsuIdService } from "../services/Usuario.service.js";
+
 
 export const validacaoId = (req, res, next) => {
     const id = req.params.id; // Faz a requisição do ID
@@ -17,7 +18,7 @@ export const validacaoUsuario = async (req, res, next) => {
     const id = req.params.id; // Faz a requisição do ID para assim, encontrar o usuario desejado 
 
     // Const para fazer a verificação do usuário dentro do banco de dados, 'AWAIT' para aguardar uma resposta do banco de dados
-    const Usuario = await usuarioService.pesUsuIdService(id);
+    const Usuario = await pesUsuIdService(id);
 
     // MENSAGEM DE ERROR PARA CASO O USUÁRIO NÃO EXISTA DENTRO DO BANCO DE DADOS
     if (!Usuario) {
@@ -29,4 +30,3 @@ export const validacaoUsuario = async (req, res, next) => {
 
     next();
 };
-

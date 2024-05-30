@@ -1,9 +1,16 @@
-import usuarioService from "../services/Usuario.service.js";
+import {
+    criarUsuService,
+    pesUsuService,
+    pesUsuIdService,
+    atualizarUsuService,
+    deletarUsuService
+} from "../services/Usuario.service.js";
 
-const criarUsu = async (req, res) => {
+export const criarUsu = async (req, res) => {
     try {
         const { nome, senha, email, telefone, avatar } = req.body;
-        const Usuario = await usuarioService.criarUsu(req.body)
+        const Usuario = await criarUsuService(req.body)
+
         //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE;
         //      Erro 400, quando um campo não pode ser processado pelo servidor, erro de digitação do usuário
         if (!nome || !senha || !email) {
@@ -31,11 +38,11 @@ const criarUsu = async (req, res) => {
     };
 };
 
-const pesUsu = async (req, res) => {
+export const pesUsu = async (req, res) => {
     try {
-        const Usuarios = await usuarioService.pesUsuService();
+        const Usuarios = await pesUsuService();
 
-        if (Usuarios.lenght === 0) {
+        if (Usuarios.length === 0) {
             return res.status(400).send({ mensagem: "Não há usuarios cadastrados" })
         };
 
@@ -46,7 +53,8 @@ const pesUsu = async (req, res) => {
     };
 };
 
-const pesUsuId = async (req, res) => { //Function de verificação de usuarios e a Id dos mesmos
+// Função de verificação e pesquisa de usuário pelo Id
+export const pesUsuId = async (req, res) => {
 
     const UsuarioId = req.Usuario; // Faz a requisição do Usuario para o banco de dados
 
@@ -54,7 +62,7 @@ const pesUsuId = async (req, res) => { //Function de verificação de usuarios e
 
 };
 
-const UsuUpdate = async (req, res) => {
+export const UsuUpdate = async (req, res) => {
     try {
         const { id, Usuario } = req;
         const { nome, senha, email, telefone, avatar } = req.body;
@@ -81,7 +89,7 @@ const UsuUpdate = async (req, res) => {
             return res.status(400).json({ mensagem: "Você precisa fazer alguma alteração para atualizar os dados!" });
         };
 
-        await usuarioService.UsuUpdateService(
+        await atualizarUsuService(
             id,
             usuarioAtualizado.nome,
             usuarioAtualizado.senha,
@@ -97,11 +105,29 @@ const UsuUpdate = async (req, res) => {
     };
 };
 
+export const deletarUsu = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-//exporta os modules, o que cria o usuario no bd, o que pesquisa, o que pesquisa pelo ID e o que faz update
-export default {
-    criarUsu,
-    pesUsu,
-    pesUsuId,
-    UsuUpdate,
+        // Chamada para buscar o usuário pelo ID
+        const Usuario = await pesUsuIdService(id);
+
+        // Verifica se o usuário existe
+        if (!Usuario) {
+            return res.status(400).send({ mensagem: "Usuário não encontrado" });
+        }
+
+        // Verifica se o usuário que está tentando deletar a conta é o mesmo que a criou
+        if (Usuario._id.toString() !== req.Usuario._id.toString()) {
+            return res.status(403).send({ mensagem: 'Você não pode deletar esse usuário!' });
+        }
+
+        // Deleta o usuário
+        await deletarUsuService(id);
+
+        return res.status(200).send({ mensagem: "Usuário deletado com sucesso!" });
+
+    } catch (error) {
+        res.status(500).send({ mensagem: error.message });
+    }
 };
