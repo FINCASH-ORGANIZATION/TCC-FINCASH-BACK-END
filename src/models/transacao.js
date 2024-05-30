@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 /* import categoriaTransacao from "../models/categoriaTransacao.js"; */
 
 const transacaoSchema = new mongoose.Schema({

@@ -17,6 +17,10 @@ const UsuarioSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    sobrenome: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         required: true,
@@ -34,11 +38,6 @@ const UsuarioSchema = new mongoose.Schema({
     expiracaoTokenSenha: {
         type: Date,
         select: false,
-    },
-    telefone: {
-        type: String,
-        required: true,
-        unique: true,
     },
     avatar: {
         type: String,

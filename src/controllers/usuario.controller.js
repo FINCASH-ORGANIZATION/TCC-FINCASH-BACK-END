@@ -8,12 +8,12 @@ import {
 
 export const criarUsu = async (req, res) => {
     try {
-        const { nome, senha, email, telefone, avatar } = req.body;
+        const { nome, sobrenome, senha, email, avatar } = req.body;
         const Usuario = await criarUsuService(req.body)
 
         //      FAZ A SELEÇÃO DOS DADOS INSERIDOS, VENDO SE REALMENTE FORAM TODOS PREENCHIDOS CORRETAMENTE;
         //      Erro 400, quando um campo não pode ser processado pelo servidor, erro de digitação do usuário
-        if (!nome || !senha || !email) {
+        if (!nome || !sobrenome || !senha || !email) {
             res.status(400).json({ message: "Por favor, preencha todos os campos para se registrar!" })
         };
 
@@ -27,9 +27,9 @@ export const criarUsu = async (req, res) => {
             Usuario: {
                 id: Usuario._id,
                 nome,
+                sobrenome,
                 email,
                 senha,
-                telefone,
                 avatar
             },
         });
@@ -65,25 +65,25 @@ export const pesUsuId = async (req, res) => {
 export const UsuUpdate = async (req, res) => {
     try {
         const { id, Usuario } = req;
-        const { nome, senha, email, telefone, avatar } = req.body;
+        const { nome, sobrenome, senha, email, avatar } = req.body;
 
-        if (!nome && !senha && !email && !telefone && !avatar) {
+        if (!nome && !sobrenome && !senha && !email && !avatar) {
             return res.status(400).json({ mensagem: "Preencha pelo menos um campo para fazer a alteração!" });
         };
 
         const usuarioAtualizado = {
             nome: nome || Usuario.nome,
+            sobrenome: sobrenome || Usuario.sobrenome,
             senha: senha || Usuario.senha,
             email: email || Usuario.email,
-            telefone: telefone || Usuario.telefone,
             avatar: avatar || Usuario.avatar
         };
 
         if (
             usuarioAtualizado.nome === Usuario.nome &&
+            usuarioAtualizado.sobrenome === Usuario.sobrenome &&
             usuarioAtualizado.senha === Usuario.senha &&
             usuarioAtualizado.email === Usuario.email &&
-            usuarioAtualizado.telefone === Usuario.telefone &&
             usuarioAtualizado.avatar === Usuario.avatar
         ) {
             return res.status(400).json({ mensagem: "Você precisa fazer alguma alteração para atualizar os dados!" });
@@ -92,9 +92,9 @@ export const UsuUpdate = async (req, res) => {
         await atualizarUsuService(
             id,
             usuarioAtualizado.nome,
+            usuarioAtualizado.sobrenome,
             usuarioAtualizado.senha,
             usuarioAtualizado.email,
-            usuarioAtualizado.telefone,
             usuarioAtualizado.avatar
         );
 
