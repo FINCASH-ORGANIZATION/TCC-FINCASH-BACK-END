@@ -1,8 +1,12 @@
 import mongoose from "mongoose";
-/* import categoriaTransacao from "../models/categoriaTransacao.js"; */
 
 const transacaoSchema = new mongoose.Schema({
     // Tipo de transação (compra, venda, dividendos, etc.)
+    tipoTransacao: {
+        type: String,
+        required: false,
+    },
+    // Descrição para ficar mais fácil de 
     descricao: {
         type: String,
         required: true,
@@ -17,10 +21,14 @@ const transacaoSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    // Data da transação
+    // Data que foi feita a transação
     data: {
         type: Date,
-        default: Date.now(),
+        require: true
+    },
+    conta: {
+        type: String,
+        required: false,
     },
     Usuario: {
         type: mongoose.Schema.Types.ObjectId,
