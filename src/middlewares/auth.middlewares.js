@@ -41,7 +41,7 @@ export const authMiddlewares = (req, res, next) => {
             // Recebe o objeto (Id) e envia para o 'Usuario',assim é devolvido para o banco, assim terá acesso ao Id do Usuário que está logado.
             req.UsuarioId = Usuario._id;
 
-            return next();
+            next();
         });
     }
     catch (error) {

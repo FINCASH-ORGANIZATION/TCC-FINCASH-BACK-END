@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-// Esquema para uma categoria de gasto ou receita
 const categoriaReceitaSchema = new mongoose.Schema({
     nome: {
         type: String,
-        required: false,
+        required: true,
+        unique: true,
     },
-    // Tipo da categoria: "gasto" ou "receita"'
+    // Tipo da categoria: "gasto" ou "receita".
     tipo: {
         type: String,
         enum: [
@@ -22,13 +22,18 @@ const categoriaReceitaSchema = new mongoose.Schema({
         ],
         required: true,
     },
+    // Campo para categoria personalizada quando o usuário escolher a opção "Outros"
+    categoriaPersonalizada: {
+        type: String,
+        default: null,
+    },
     Usuario: {
-        type: Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Usuario',
         required: true,
-    }
+    },
 });
 
-const categoriaTransacao = mongoose.model('categoriaTransacao', categoriaReceitaSchema)
+const CategoriaTransacao = mongoose.model('CategoriaTransacao', categoriaReceitaSchema)
 
-export default categoriaTransacao;
+export default CategoriaTransacao;

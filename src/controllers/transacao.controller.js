@@ -13,20 +13,24 @@ import mongoose from "mongoose";
 /* Função criar transação  */
 export const criarTransacaoRota = async (req, res) => {
     try {
-        const { descricao, precoUnitario, valorTotal } = req.body;
+        const { valor, data, descricao, tipoTransacao, formaPagamento, conta, notas } = req.body;
 
-        if (!descricao || !precoUnitario || !valorTotal) {
+        if (!valor || !data || !tipoTransacao || !formaPagamento || !conta) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos para se registrar!" });
         }
 
         await criartranService({
+            valor,
+            data,
             descricao,
-            precoUnitario,
-            valorTotal,
+            tipoTransacao,
+            formaPagamento,
+            conta,
+            notas,
             Usuario: req.UsuarioId,
         });
 
-        res.status(200).send({ mensagem: "Uma Nova transação foi efetuada!" });
+        res.status(200).send({ mensagem: "Uma Nova transação foi feita!" });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -62,10 +66,13 @@ export const pesTransacaoRota = async (req, res) => {
             total,
             results: transacao.map((item) => ({
                 id: item._id,
-                descricao: item.descricao,
-                precoUnitario: item.precoUnitario,
-                valorTotal: item.valorTotal,
+                valor: item.valor,
                 data: item.data,
+                descricao: item.descricao,
+                tipoTransacao: item.tipoTransacao,
+                formaPagamento: item.formaPagamento,
+                conta: item.conta,
+                notas: item.notas,
                 usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
             })),
         });
@@ -86,12 +93,15 @@ export const pesquisaIDRota = async (req, res) => {
 
         res.send({
             transacao: {
-                id: transacao._id,
-                descricao: transacao.descricao,
-                precoUnitario: transacao.precoUnitario,
-                valorTotal: transacao.valorTotal,
-                data: transacao.data,
-                usuario: transacao.Usuario ? transacao.Usuario : "Usuário não encontrado!"
+                id: item._id,
+                valor: item.valor,
+                data: item.data,
+                descricao: item.descricao,
+                tipoTransacao: item.tipoTransacao,
+                formaPagamento: item.formaPagamento,
+                conta: item.conta,
+                notas: item.notas,
+                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
             },
         });
     } catch (error) {
@@ -113,10 +123,13 @@ export const pesDescricaoRota = async (req, res) => {
         res.send({
             results: transacao.map((item) => ({
                 id: item._id,
-                descricao: item.descricao,
-                precoUnitario: item.precoUnitario,
-                valorTotal: item.valorTotal,
+                valor: item.valor,
                 data: item.data,
+                descricao: item.descricao,
+                tipoTransacao: item.tipoTransacao,
+                formaPagamento: item.formaPagamento,
+                conta: item.conta,
+                notas: item.notas,
                 usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
             })),
         });
@@ -135,11 +148,14 @@ export const pesUsuarioRota = async (req, res) => {
         res.send({
             results: transacao.map((item) => ({
                 id: item._id,
-                descricao: item.descricao,
-                precoUnitario: item.precoUnitario,
-                valorTotal: item.valorTotal,
+                valor: item.valor,
                 data: item.data,
-                usuario: item.Usuario
+                descricao: item.descricao,
+                tipoTransacao: item.tipoTransacao,
+                formaPagamento: item.formaPagamento,
+                conta: item.conta,
+                notas: item.notas,
+                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
             })),
         });
     } catch (error) {
