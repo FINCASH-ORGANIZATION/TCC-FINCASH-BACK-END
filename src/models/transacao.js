@@ -1,3 +1,4 @@
+import categoriaTransacao from "./categoriaTransacao.js";
 import mongoose from "mongoose";
 
 const transacaoSchema = new mongoose.Schema({
@@ -7,7 +8,7 @@ const transacaoSchema = new mongoose.Schema({
     }, //valor, descricao, tipoTransacao, data, formaPagamento, conta, notas
     data: {
         type: Date,
-        require: true
+        required: true
     },
     descricao: {
         type: String,
@@ -15,13 +16,13 @@ const transacaoSchema = new mongoose.Schema({
     },
     tipoTransacao: {
         type: String,
-        enum: ['despesa', 'receita'],
+        enum: ['Despesa', 'Receita'],
         required: true
     },
-    categoriaReceita: {
+    categoria: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'categoriaTransacao',
-        required: false
+        required: true
     },
     formaPagamento: {
         type: String,

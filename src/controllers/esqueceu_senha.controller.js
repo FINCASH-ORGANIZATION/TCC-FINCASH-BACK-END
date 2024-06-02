@@ -1,7 +1,7 @@
-import crypto from 'crypto';
-import bcrypt from 'bcrypt';
-import Usuario from '../models/Usuario.js';
-import mailer from '../services/mailer.service.js';
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+import Usuario from "../models/Usuario.js";
+import mailer from "../services/mailer.service.js";
 
 export const esqueceuSenha = async (req, res) => {
     const { email } = req.body;

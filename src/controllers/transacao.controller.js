@@ -1,3 +1,4 @@
+import categoriaTransacao from "../models/categoriaTransacao.js";
 import {
     criartranService,
     pestraService,
@@ -13,17 +14,41 @@ import mongoose from "mongoose";
 /* Função criar transação  */
 export const criarTransacaoRota = async (req, res) => {
     try {
-        const { valor, data, descricao, tipoTransacao, formaPagamento, conta, notas } = req.body;
+        const { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada } = req.body;
 
-        if (!valor || !data || !tipoTransacao || !formaPagamento || !conta) {
-            return res.status(400).send({ mensagem: "Por favor, preencha todos os campos para se registrar!" });
+        console.log('Recebido:', { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, categoriaPersonalizada });
+
+        if (!valor || !data || !tipoTransacao || !categoria || !formaPagamento || !conta) {
+            return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 
+        let categoriaObj;
+
+        if (categoria === 'Outros' && categoriaPersonalizada) {
+            // Se a categoria for "Outros" o usuário irá criar sua própria categoria
+            categoriaObj = new categoriaTransacao({
+                tipo: categoria,
+                categoriaPersonalizada,
+                Usuario: req.UsuarioId
+            });
+
+            await categoriaObj.save();
+        } else {
+            // Caso contrário, procure a categoria existente
+            categoriaObj = await categoriaTransacao.findOne({ tipo: categoria });
+
+            if (!categoriaObj) {
+                return res.status(400).send({ mensagem: "Categoria inválida!" });
+            }
+        }
+        
         await criartranService({
             valor,
             data,
             descricao,
             tipoTransacao,
+            categoria: categoriaObj._id,
+            categoriaPersonalizada,
             formaPagamento,
             conta,
             notas,
@@ -70,6 +95,7 @@ export const pesTransacaoRota = async (req, res) => {
                 data: item.data,
                 descricao: item.descricao,
                 tipoTransacao: item.tipoTransacao,
+                categoria: item.categoria,
                 formaPagamento: item.formaPagamento,
                 conta: item.conta,
                 notas: item.notas,
@@ -98,6 +124,7 @@ export const pesquisaIDRota = async (req, res) => {
                 data: item.data,
                 descricao: item.descricao,
                 tipoTransacao: item.tipoTransacao,
+                categoria: item.categoria,
                 formaPagamento: item.formaPagamento,
                 conta: item.conta,
                 notas: item.notas,
@@ -127,6 +154,7 @@ export const pesDescricaoRota = async (req, res) => {
                 data: item.data,
                 descricao: item.descricao,
                 tipoTransacao: item.tipoTransacao,
+                categoria: item.categoria,
                 formaPagamento: item.formaPagamento,
                 conta: item.conta,
                 notas: item.notas,
@@ -152,6 +180,7 @@ export const pesUsuarioRota = async (req, res) => {
                 data: item.data,
                 descricao: item.descricao,
                 tipoTransacao: item.tipoTransacao,
+                categoria: item.categoria,
                 formaPagamento: item.formaPagamento,
                 conta: item.conta,
                 notas: item.notas,
@@ -166,10 +195,10 @@ export const pesUsuarioRota = async (req, res) => {
 /* Função para o usuário atualizar os dados de dentro da transação que ele estiver manipulando */
 export const atualizarTrans = async (req, res) => {
     try {
-        const { descricao, precoUnitario, valorTotal } = req.body;
+        const { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada } = req.body;
         const { id } = req.params;
 
-        if (!descricao && !precoUnitario && !valorTotal) {
+        if (!valor && !data && !descricao && !tipoTransacao && !categoria && !formaPagamento && !conta && !notas && !valor && categoriaPersonalizada) {
             return res.status(400).send({ mensagem: 'Não foi possível atualizar a transação' });
         }
 
@@ -182,7 +211,7 @@ export const atualizarTrans = async (req, res) => {
             return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
         }
 
-        await atualizarTransService(id, descricao, precoUnitario, valorTotal);
+        await atualizarTransService(id, valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada);
 
         res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
     } catch (error) {

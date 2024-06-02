@@ -1,6 +1,5 @@
 // IMPORTAÇÃO DA BIBLIOTECA EXPRESS NA FUNÇÃO ROUTER
-import express from 'express';
-import { Router } from 'express';
+import { Router } from "express";
 
 const rota = Router();
 // **********************************************************************************************************************
