@@ -41,7 +41,9 @@ export const criarTransacaoRota = async (req, res) => {
                 return res.status(400).send({ mensagem: "Categoria inválida!" });
             }
         }
-        
+        console.log('enviando:', { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, categoriaPersonalizada });
+
+
         await criartranService({
             valor,
             data,
@@ -198,10 +200,13 @@ export const atualizarTrans = async (req, res) => {
         const { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada } = req.body;
         const { id } = req.params;
 
-        if (!valor && !data && !descricao && !tipoTransacao && !categoria && !formaPagamento && !conta && !notas && !valor && categoriaPersonalizada) {
-            return res.status(400).send({ mensagem: 'Não foi possível atualizar a transação' });
+        // Validação do tipo de transação
+        const tiposValidos = ['Despesa', 'Receita'];
+        if (!tiposValidos.includes(tipoTransacao)) {
+            return res.status(400).send({ mensagem: 'Tipo de transação inválido!' });
         }
 
+        // Validação do usuário
         const transacao = await pesIDService(id);
         if (!transacao) {
             return res.status(404).send({ mensagem: 'Transação não encontrada' });
@@ -211,11 +216,19 @@ export const atualizarTrans = async (req, res) => {
             return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
         }
 
+        // Verficação para ver se o usuário realmente fez alguma alteração dentro do array
+        const camposAlterados = Object.keys(req.body).filter(key => req.body[key] !== transacao[key]);
+
+        if (camposAlterados.length === 0) {
+            return res.status(400).send({ mensagem: 'Faça ao menos uma alteração!' });
+        }
+
+        // Chama o serviço de atualização
         await atualizarTransService(id, valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada);
 
-        res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
+        res.status(200).send({ mensagem: 'Transação atualizada com sucesso!' });
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(500).send({ mensagem: error.message });
     }
 };
 

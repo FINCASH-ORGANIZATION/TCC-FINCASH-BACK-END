@@ -1,4 +1,3 @@
-import categoriaTransacao from "./categoriaTransacao.js";
 import mongoose from "mongoose";
 
 const transacaoSchema = new mongoose.Schema({
