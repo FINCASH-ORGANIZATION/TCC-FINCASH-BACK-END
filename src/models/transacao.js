@@ -4,7 +4,7 @@ const transacaoSchema = new mongoose.Schema({
     valor: {
         type: Number,
         required: true
-    }, //valor, descricao, tipoTransacao, data, formaPagamento, conta, notas
+    },
     data: {
         type: Date,
         required: true
@@ -42,6 +42,6 @@ const transacaoSchema = new mongoose.Schema({
     },
 });
 
-const transacao = mongoose.model('transacao', transacaoSchema)
+const transacao = mongoose.model('transacao', transacaoSchema);
 
 export default transacao;
