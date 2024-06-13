@@ -209,9 +209,9 @@ export const atualizarTrans = async (req, res) => {
             return res.status(404).send({ mensagem: 'Transação não encontrada' });
         }
 
-        if (transacao.Usuario._id.toString() !== req.UsuarioId) {
+        /* if (transacao.Usuario._id.toString() !== req.UsuarioId) {
             return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
-        }
+        } */
 
         const camposAlterados = Object.keys(req.body).filter(key => req.body[key] !== transacao[key]);
 

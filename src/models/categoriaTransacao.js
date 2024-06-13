@@ -18,12 +18,12 @@ const categoriaTransacaoSchema = new mongoose.Schema({
     },
     categoriaPersonalizada: {
         type: String,
-        default: null,
+        default: null
     },
     Usuario: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Usuario',
-        required: true,
+        required: true
     },
 });
 
