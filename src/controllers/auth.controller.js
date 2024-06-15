@@ -19,12 +19,7 @@ export const login = async (req, res) => {
 
     const token = geradorToken(usuario.id);
 
-    // Adicionei essa linha para enviar o token como uma propriedade da resposta
-    res.set("Authorization", `Bearer ${token}`);
-
-    res.send({
-      message: `Login efetuado com sucesso. ${token}`,
-    });
+    res.send(token);
   } catch (error) {
     res.status(400).send(error.message);
   }
