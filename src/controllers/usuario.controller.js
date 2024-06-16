@@ -58,7 +58,7 @@ export const pesUsuId = async (req, res) => {
 
     const UsuarioId = req.Usuario; // Faz a requisição do Usuario para o banco de dados
 
-    res.send(UsuarioId); // Faz a Requisição do Usuario ao banco de dados e retorna ao usuario a exibição do nome, email e afins
+    res.send(UsuarioId); 
 
 };
 
