@@ -3,12 +3,22 @@ import { Router } from "express";
 
 const rota = Router();
 // **********************************************************************************************************************
-import { criarUsu, pesUsu, pesUsuId, UsuUpdate, deletarUsu } from '../controllers/usuario.controller.js';
-import { validacaoId, validacaoUsuario } from "../middlewares/global.middlewares.js";
+import {
+  criarUsu,
+  pesUsu,
+  pesUsuId,
+  UsuUpdate,
+  deletarUsu,
+} from "../controllers/usuario.controller.js";
+import {
+  validacaoId,
+  validacaoUsuario,
+} from "../middlewares/global.middlewares.js";
+import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 
 rota.post("/", criarUsu);
 rota.get("/", pesUsu);
-rota.get("/:id", validacaoId, validacaoUsuario, pesUsuId);
+rota.get("/:id", pesUsuId, authMiddlewares );
 rota.patch("/:id", validacaoId, validacaoUsuario, UsuUpdate);
 rota.delete("/:id", validacaoId, validacaoUsuario, deletarUsu);
 
