@@ -1,49 +1,61 @@
-import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { pesUsuIdService } from "../services/Usuario.service.js";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-// Parte onde faz a autenticação e autorização do usuário, assim que autorizado, todo o acesso que ele tem dentro do servidor será liberado.
-export const authMiddlewares = (req, res, next) => {
+export const authMiddlewares = async (req, res, next) => {
   try {
     const { authorization } = req.headers;
 
     if (!authorization) {
-      return res.send(401);
+      console.log("Token não fornecido!");
+      return res.status(401).send({ mensagem: "Token não fornecido!" });
     }
 
     const particao = authorization.split(" ");
 
     if (particao.length !== 2) {
-      return res.status(401);
+      console.log("Formato de token inválido:", authorization);
+      return res.status(401).send({ mensagem: "Formato de token inválido!" });
     }
 
     const [schema, token] = particao;
 
     if (schema !== "Bearer") {
-      return res.send(401);
+      console.log("Esquema de autenticação inválido:", schema);
+      return res
+        .status(401)
+        .send({ mensagem: "Esquema de autenticação inválido!" });
     }
 
-    // Função de validação do Id do usuário. Lembrando que por mais que o token seja válido em questão de caracteres, ele tem uma duração
-    // que permita que ele seja válido para ser autenticado.
+    console.log("Token recebido:", token); // Verifica se o token está sendo recebido corretamente
+
     jwt.verify(token, process.env.CHAVE_JWT, async (error, decoded) => {
       if (error) {
-        console.log(error);
+        console.log("Erro ao verificar token:", error);
         return res.status(401).send({ mensagem: "Token Inválido!" });
       }
-      // Faz a validação para ver se o usuário existe e tira o objeto dele (neste caso o objeto  está dentro do decoded, ou seja, o Id)
-      const Usuario = await pesUsuIdService(decoded.id);
 
-      if (!Usuario || !Usuario.id) {
-        return res.status(401).send({ mensagem: "Token Inválido!" });
+      console.log("Token válido. Decoded:", decoded);
+
+      // Busca os detalhes do usuário pelo ID contido no token
+      const usuario = await pesUsuIdService(decoded.id);
+
+      if (!usuario || !usuario._id) {
+        console.log("Usuário não encontrado para o ID:", decoded.id);
+        return res.status(401).send({ mensagem: "Usuário não encontrado!" });
       }
-      // Recebe o objeto (Id) e envia para o 'Usuario',assim é devolvido para o banco, assim terá acesso ao Id do Usuário que está logado.
-      req.UsuarioId = Usuario._id;
+
+      console.log("Usuário autenticado:", usuario);
+
+      // Armazena o ID do usuário na requisição para uso posterior
+      req.UsuarioId = usuario._id;
 
       next();
     });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    console.error("Erro interno no servidor:", error);
+    res.status(500).send({ mensagem: "Erro interno no servidor." });
   }
 };

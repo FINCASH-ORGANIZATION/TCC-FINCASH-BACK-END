@@ -4,6 +4,6 @@ import { Router } from "express";
 /* Rota para autenticação de login por meio do email e senha do usuário, utilizando o POST */
 const rota = Router();
 
-rota.post("/", login);
+rota.post("/Login", login);
 
 export default rota;
