@@ -1,7 +1,7 @@
 import {
     criarCartaoService,
     pesCartaoService,
-    /* pesCartaoIdService, */
+    pesCartaoIdService,
     atualizarCartaoService,
     deletarCartaoService,
 } from "../services/cartoes.service.js";
@@ -9,13 +9,22 @@ import {
 // Rota para criar um novo cartão de crédito
 export const criarCartao = async (req, res) => {
     try {
-        const { nomeCartao, limite, descricao, fechamento, vencimento, conta, usuarioId } = req.body;
+        const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
 
-        if (!nomeCartao || !limite || !fechamento || !vencimento || !conta || !usuarioId) {
+        if (!nomeCartao || !limite || !fechamento || !vencimento || !conta) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 
-        const novoCartao = await criarCartaoService({ nomeCartao, limite, descricao, fechamento, vencimento, conta, usuarioId });
+        const novoCartao = await criarCartaoService({
+            nomeCartao,
+            limite,
+            descricao,
+            fechamento,
+            vencimento,
+            conta,
+            Usuario: req.UsuarioId,
+
+        });
 
         res.status(201).send({ mensagem: "Cartão de crédito adicionado com sucesso!", cartao: novoCartao });
     } catch (error) {
@@ -26,7 +35,7 @@ export const criarCartao = async (req, res) => {
 // Função que retorna todos os cartões de crédito cadastrados no banco de dados de todos os usuários
 export const pesCartaoRota = async (req, res) => {
     try {
-        const cartoes = await pesCartaoService().populate('usuarioId', 'nome email');
+        const cartoes = await pesCartaoService();
 
         if (cartoes.length === 0) {
             return res.status(400).send({ mensagem: "Não há cartões de crédito registrados!" });
@@ -49,49 +58,61 @@ export const pesCartaoRota = async (req, res) => {
     }
 };
 
-/* // Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela
+// Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela
 export const pesCartaoIdRota = async (req, res) => {
     try {
-        const id = req.UsuarioId;
+        const { id } = req.params;
 
         const cartao = await pesCartaoIdService(id);
 
+        if (!cartao) {
+            return res.status(404).send({ mensagem: "Cartão não encontrado!" });
+        }
+
         res.send({
-            results: cartao.map((item) => ({
-                id: item._id,
-                nomeCartao: item.nomeCartao,
-                limite: item.limite,
-                descricao: item.descricao,
-                fechamento: item.fechamento,
-                vencimento: item.vencimento,
-                conta: item.conta,
-                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
-            })),
+            id: cartao._id,
+            nomeCartao: cartao.nomeCartao,
+            limite: cartao.limite,
+            descricao: cartao.descricao,
+            fechamento: cartao.fechamento,
+            vencimento: cartao.vencimento,
+            conta: cartao.conta,
+            usuario: cartao.Usuario ? cartao.Usuario : "Usuário não encontrado!"
         });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
-}; */
+};
 
 // Rota para editar um cartão de crédito
 export const atualizarCartao = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nomeCartao, limite, descricao, fechamento, vencimento, conta, usuarioId } = req.body;
+        const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
 
-        const cartaoAtualizado = await atualizarCartaoService(id, { nomeCartao, limite, descricao, fechamento, vencimento, conta, usuarioId });
-
-        if (!cartaoAtualizado.value) {
-            return res.status(404).json({ message: 'Cartão não encontrado' });
-        }
-
-        const camposAlterados = Object.keys(req.body).filter(key => req.body[key] !== cartaoAtualizado.value[key]);
-
-        if (camposAlterados.length === 0) {
+        // Verifique se pelo menos um dos campos está sendo atualizado
+        if (!nomeCartao && !limite && !descricao && !fechamento && !vencimento && !conta) {
             return res.status(400).send({ mensagem: 'Faça ao menos uma alteração!' });
         }
 
-        res.status(200).json(cartaoAtualizado.value);
+        // Crie um objeto com os campos a serem atualizados
+        const camposAtualizados = {};
+        if (nomeCartao) camposAtualizados.nomeCartao = nomeCartao;
+        if (limite) camposAtualizados.limite = limite;
+        if (descricao) camposAtualizados.descricao = descricao;
+        if (fechamento) camposAtualizados.fechamento = fechamento;
+        if (vencimento) camposAtualizados.vencimento = vencimento;
+        if (conta) camposAtualizados.conta = conta;
+
+        // Chame o serviço para atualizar o cartão
+        const cartaoAtualizado = await atualizarCartaoService(id, camposAtualizados);
+
+        // Verifique se o cartão foi encontrado e atualizado
+        if (!cartaoAtualizado) {
+            return res.status(404).send({ mensagem: 'Cartão não encontrado' });
+        }
+
+        res.status(200).json(cartaoAtualizado);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -110,6 +131,6 @@ export const deletarCartao = async (req, res) => {
 
         res.status(200).json({ message: 'Cartão deletado com sucesso' });
     } catch (error) {
-        res.status (500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 };

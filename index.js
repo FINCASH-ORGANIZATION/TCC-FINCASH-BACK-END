@@ -28,7 +28,7 @@ app.use("/transacao", transacaoRota);
 app.use("/senha", esqueceuSenhaRota);
 app.use("/categoria", categoriaRota);
 app.use("/saldo", saldoRota);
-app.use("/cartoes", cartoesRota);
+app.use("/cartao", cartoesRota);
 
 app.listen(port, () => {
     console.log(`A porta está aberta em: ${port}`)
