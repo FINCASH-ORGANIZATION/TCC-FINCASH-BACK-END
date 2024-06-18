@@ -13,7 +13,7 @@ export const esqueceuSenha = async (req, res) => {
       return res.status(404).send({ Mensagem: "Usuario incorreto" });
     }
 
-    const senhatoken = Array.from(crypto.randomBytes(6))
+    const senhatoken = Array.from(crypto.randomBytes(4))
       .map((byte) => (byte % 10).toString())
       .join("");
 

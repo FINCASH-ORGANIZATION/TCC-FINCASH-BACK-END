@@ -6,6 +6,7 @@ const rota = Router();
 import {
   criarUsu,
   pesUsu,
+  pesId,
   pesUsuId,
   UsuUpdate,
   deletarUsu,
@@ -18,6 +19,7 @@ import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 
 rota.post("/", criarUsu);
 rota.get("/", pesUsu);
+rota.get("/:id", pesId);
 rota.get("/pes", authMiddlewares, pesUsuId);
 rota.patch("/:id", validacaoId, validacaoUsuario, UsuUpdate);
 rota.delete("/:id", validacaoId, validacaoUsuario, deletarUsu);

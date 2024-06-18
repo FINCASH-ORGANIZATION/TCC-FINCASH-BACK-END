@@ -7,7 +7,9 @@ import transacaoRota from "./src/routes/transacao.route.js";
 import esqueceuSenhaRota from "./src/routes/esqueceuSenha.route.js";
 import categoriaRota from "./src/routes/categoriaTransacao.route.js";
 import saldoRota from "./src/routes/saldo.route.js";
-import cartoesRota from "./src/routes/cartoes.route.js"
+import cartoesRota from "./src/routes/cartoes.route.js";
+import despesaRota from "./src/routes/despesa.route";
+import receitaRota from "./src/routes/receita.route.js";
 import cors from "./src/middlewares/cors.middlewares.js";
 
 dotenv.config();
@@ -28,6 +30,8 @@ app.use("/transacao", transacaoRota);
 app.use("/senha", esqueceuSenhaRota);
 app.use("/categoria", categoriaRota);
 app.use("/saldo", saldoRota);
+app.use("/despesa", despesaRota);
+app.use("/receita", receitaRota)
 app.use("/cartao", cartoesRota);
 
 app.listen(port, () => {

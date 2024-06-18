@@ -56,11 +56,13 @@ export const pesUsu = async (req, res) => {
   }
 };
 
-// Função de verificação e pesquisa de usuário pelo Id
-export const pesUsuId = async (req, res) => {
+export const pesId = async (req, res) => {
+  //Function de verificação de usuarios e a Id dos mesmos
+
   try {
-    // Use req.UsuarioId para buscar os detalhes do usuário
-    const usuario = await Usuario.findById(req.UsuarioId);
+    const { id } = req.params; // Supondo que o ID do usuário esteja nos parâmetros da rota
+
+    const usuario = await Usuario.findById(id);
 
     if (!usuario) {
       return res.status(404).send({ mensagem: "Usuário não encontrado." });
@@ -69,8 +71,23 @@ export const pesUsuId = async (req, res) => {
     // Retorna todas as propriedades do objeto usuario como resposta
     return res.status(200).send({ usuario });
   } catch (error) {
-    console.error("Erro ao buscar usuário por ID:", error);
     res.status(500).send({ mensagem: "Erro interno no servidor." });
+  }
+};
+
+// Função de verificação e pesquisa de usuário pelo Id
+export const pesUsuId = async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.UsuarioId);
+
+    if (!usuario) {
+      return res.status(404).send({ mensagem: "Usuário não encontrado." });
+    }
+
+    return res.status(200).send({ usuario });
+  } catch (error) {
+    console.error("Erro ao buscar usuário por ID:", error);
+    res.status(500).send({ message: error.message });
   }
 };
 
