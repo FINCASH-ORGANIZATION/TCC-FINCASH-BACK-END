@@ -1,12 +1,12 @@
 import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import { Router } from "express";
 import {
-    criarReceita,
     pesReceita,
     receitaId,
+    criarReceita,
     atualizarReceita,
     deletarReceita,
-} from "../controllers/cartao.controller.js";
+} from "../controllers/receita.controller.js";
 
 const rota = Router();
 

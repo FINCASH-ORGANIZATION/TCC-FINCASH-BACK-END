@@ -3,39 +3,32 @@ import mongoose from "mongoose";
 const despesaSchema = new mongoose.Schema({
   descricao: {
     type: String,
-    required: true
-  },
+    required: true,
+  }, // descricao, valor, data, categoria, conta
   valor: {
     type: Number,
-    required: true
+    required: true,
+    min: 1,
   },
   data: {
     type: Date,
-    required: true
+    required: true,
   },
   categoria: {
     type: String,
-    required: true
-  },
-  formaPagamento: {
-    type: String,
-    required: true
+    required: true,
   },
   conta: {
     type: String,
-    required: true
-  },
-  notas: {
-    type: String,
-    default: null
+    required: true,
   },
   Usuario: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Usuario',
+    ref: "Usuario",
     required: true,
   },
 });
 
-const despesa = mongoose.model('despesa', despesaSchema);
+const despesa = mongoose.model("despesa", despesaSchema);
 
 export default despesa;
