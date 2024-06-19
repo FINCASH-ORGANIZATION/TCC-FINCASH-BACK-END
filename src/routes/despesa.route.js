@@ -1,8 +1,9 @@
 import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import { Router } from "express";
 import {
-    pesDespesa,
+    pesDespesaRota,
     despesaId,
+    despesaDescricaoRota,
     criarDespesa,
     atualizarDespesa,
     deletarDespesa,
@@ -10,19 +11,22 @@ import {
 
 const rota = Router();
 
-// Rota para listar todos os cartões de crédito
-rota.get('/despesa', authMiddlewares, pesDespesa);
+// Rota para listar todas as despesas que estão na conta logada
+rota.get("/lista", authMiddlewares, pesDespesaRota);
 
-// Rota para pesquisar o cartão pelo Id
+// Rota para pesquisar uma despesa pelo Id
 rota.get("/:id", authMiddlewares, despesaId);
 
-// Rota para criar um novo cartão de crédito
-rota.post('/despesa', authMiddlewares, criarDespesa);
+// Rota para pesquisar uma despesa pela sua descrição
+rota.get("/descricao", despesaDescricaoRota);
 
-// Rota para atualizar um cartão de crédito
-rota.patch('/despesa/:id', authMiddlewares, atualizarDespesa);
+// Rota para criar uma despesa
+rota.post("/", authMiddlewares, criarDespesa);
 
-// Rota para deletar um cartão de crédito
-rota.delete('/despesa/:id', authMiddlewares, deletarDespesa);
+// Rota para atualizar uma despesa
+rota.patch("/:id", authMiddlewares, atualizarDespesa);
+
+// Rota para deletar uma despesa
+rota.delete("/:id", authMiddlewares, deletarDespesa);
 
 export default rota;

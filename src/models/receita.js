@@ -29,6 +29,6 @@ const receitaSchema = new mongoose.Schema({
   },
 });
 
-const Receita = mongoose.model("Receita", receitaSchema);
+const receita = mongoose.model("Receita", receitaSchema);
 
-export default Receita;
+export default receita;

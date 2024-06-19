@@ -30,8 +30,8 @@ app.use("/transacao", transacaoRota);
 app.use("/senha", esqueceuSenhaRota);
 app.use("/categoria", categoriaRota);
 app.use("/saldo", saldoRota);
-app.use("/despesa", despesaRota);
 app.use("/receita", receitaRota);
+app.use("/despesa", despesaRota);
 app.use("/cartao", cartoesRota);
 
 app.listen(port, () => {

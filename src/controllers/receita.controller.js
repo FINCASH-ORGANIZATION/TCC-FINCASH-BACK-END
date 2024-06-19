@@ -1,11 +1,11 @@
 import {
   criarReceitaService,
-  pesIDService,
   pesReceitaService,
   pesReceitaIdService,
+  receitaDescricaoService,
   atualizarReceitaService,
   deletarReceitaService,
-} from "../services/transacao.service.js";
+} from "../services/receita.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
 import mongoose from "mongoose";
@@ -44,10 +44,10 @@ export const pesReceitaRota = async (req, res) => {
   try {
     const id = req.UsuarioId;
 
-    const despesa = await pesReceitaService(id);
+    const receita = await pesReceitaService(id);
 
     res.send({
-      results: despesa.map((item) => ({
+      results: receita.map((item) => ({
         id: item._id,
         descricao: item.descricao,
         valor: item.valor,
@@ -67,26 +67,45 @@ export const receitaId = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const transacao = await pesReceitaIdService(id);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
+    const receita = await pesReceitaIdService(id);
+    if (!receita) {
+      return res.status(404).send({ mensagem: "Receita não encontrada" });
     }
 
     res.send({
-      transacao: {
-        id: transacao._id,
-        valor: transacao.valor,
-        data: transacao.data,
-        descricao: transacao.descricao,
-        tipoTransacao: transacao.tipoTransacao,
-        categoria: transacao.categoria,
-        formaPagamento: transacao.formaPagamento,
-        conta: transacao.conta,
-        notas: transacao.notas,
-        usuario: transacao.Usuario
-          ? transacao.Usuario
-          : "Usuário não encontrado!",
-      },
+      id: item._id,
+      descricao: item.descricao,
+      valor: item.valor,
+      data: item.data,
+      categoria: item.categoria,
+      conta: item.conta,
+      usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+export const receitaDescricaoRota = async (req, res) => {
+  try {
+    const { descricao } = req.query;
+
+    const receita = await receitaDescricaoService(descricao);
+
+    if (receita.length === 0) {
+      return res.status(400).send({ mensagem: "Receita não encontrada" });
+    }
+
+    res.send({
+      results: receita.map((item) => ({
+        id: item._id,
+        descricao: item.descricao,
+        valor: item.valor,
+        data: item.data,
+        categoria: item.categoria,
+        conta: item.conta,
+        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+      })),
     });
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -97,34 +116,25 @@ export const receitaId = async (req, res) => {
 export const atualizarReceita = async (req, res) => {
   try {
     const {
+      descricao,
       valor,
       data,
-      descricao,
-      tipoTransacao,
       categoria,
-      formaPagamento,
-      conta,
-      notas,
-      categoriaPersonalizada,
+      conta
     } = req.body;
     const { id } = req.params;
 
-    const tiposValidos = ["Despesa", "Receita"];
-    if (!tiposValidos.includes(tipoTransacao)) {
-      return res.status(400).send({ mensagem: "Tipo de transação inválido!" });
-    }
-
-    const transacao = await pesIDService(id);
-    if (!transacao) {
+    const receita = await pesReceitaIdService(id);
+    if (!receita) {
       return res.status(404).send({ mensagem: "Transação não encontrada" });
     }
 
-    /* if (transacao.Usuario._id.toString() !== req.UsuarioId) {
+    /* if (receita.Usuario._id.toString() !== req.UsuarioId) {
             return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
         } */
 
     const camposAlterados = Object.keys(req.body).filter(
-      (key) => req.body[key] !== transacao[key]
+      (key) => req.body[key] !== receita[key]
     );
 
     if (camposAlterados.length === 0) {
@@ -133,21 +143,17 @@ export const atualizarReceita = async (req, res) => {
 
     await atualizarReceitaService(
       id,
+      descricao,
       valor,
       data,
-      descricao,
-      tipoTransacao,
       categoria,
-      formaPagamento,
-      conta,
-      notas,
-      categoriaPersonalizada
+      conta
     );
 
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
+    res.status(200).send({ mensagem: "Receita atualizada com sucesso!" });
   } catch (error) {
     res.status(500).send({ mensagem: error.message });
   }
@@ -162,23 +168,23 @@ export const deletarReceita = async (req, res) => {
       ? new mongoose.Types.ObjectId(id)
       : null;
     if (!objectId) {
-      return res.status(400).send({ mensagem: "ID de transação inválido" });
+      return res.status(400).send({ mensagem: "Id da Receita inválido" });
     }
 
-    const transacao = await pesIDService(objectId);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
+    const receita = await receitaDescricaoService(objectId);
+    if (!receita) {
+      return res.status(404).send({ mensagem: "Receita não encontrada" });
     }
 
-    if (transacao.Usuario._id.toString() != req.UsuarioId) {
+    if (receita.Usuario._id.toString() != req.UsuarioId) {
       return res.status(403).send({
-        mensagem: "Você não tem permissão para deletar essa transação",
+        mensagem: "Você não tem permissão para deletar essa Receita",
       });
     }
 
     await deletarReceitaService(objectId);
 
-    res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
+    res.status(200).send({ mensagem: "Receita deletada com sucesso!" });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }

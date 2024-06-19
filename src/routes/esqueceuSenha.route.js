@@ -3,8 +3,8 @@ import { esqueceuSenha, atualizarSenha } from "../controllers/esqueceu_senha.con
 
 const rota = Router();
 
-rota.post('/redefinir', esqueceuSenha);
+rota.post("/redefinir", esqueceuSenha);
 
-rota.post('/atualizar', atualizarSenha);
+rota.post("/atualizar", atualizarSenha);
 
 export default rota;

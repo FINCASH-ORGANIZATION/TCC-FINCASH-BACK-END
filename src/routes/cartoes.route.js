@@ -11,18 +11,18 @@ import {
 const rota = Router();
 
 // Rota para listar todos os cartões de crédito
-rota.get('/credito', authMiddlewares, pesCartaoRota);
+rota.get("/credito", authMiddlewares, pesCartaoRota);
 
 // Rota para pesquisar o cartão pelo Id
 rota.get("/:id", authMiddlewares, pesCartaoIdRota);
 
 // Rota para criar um novo cartão de crédito
-rota.post('/credito', authMiddlewares, criarCartao);
+rota.post("/credito", authMiddlewares, criarCartao);
 
 // Rota para atualizar um cartão de crédito
-rota.patch('/credito/:id', authMiddlewares, atualizarCartao);
+rota.patch("/credito/:id", authMiddlewares, atualizarCartao);
 
 // Rota para deletar um cartão de crédito
-rota.delete('/credito/:id', authMiddlewares, deletarCartao);
+rota.delete("/credito/:id", authMiddlewares, deletarCartao);
 
 export default rota;

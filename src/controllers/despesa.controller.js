@@ -1,10 +1,11 @@
 import {
   criarDespesaService,
-  pesUsuarioService,
-  pesUsuarioIdService,
+  pesDespesaService,
+  pesDespesaIdService,
+  despesaDescricaoService,
   atualizarDespesaService,
   deletarDespesaService,
-} from "../services/transacao.service.js";
+} from "../services/despesa.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
 import mongoose from "mongoose";
@@ -43,7 +44,7 @@ export const pesDespesaRota = async (req, res) => {
   try {
     const id = req.UsuarioId;
 
-    const despesa = await pesUsuarioService(id);
+    const despesa = await pesDespesaService(id);
 
     res.send({
       results: despesa.map((item) => ({
@@ -65,19 +66,42 @@ export const despesaId = async (req, res) => {
   try {
     const id = req.UsuarioId;
 
-    const transacao = await pesUsuarioIdService(id);
+    const despesa = await pesDespesaIdService(id);
 
     res.send({
-      results: transacao.map((item) => ({
+      results: despesa.map((item) => ({
         id: item._id,
+        descricao: item.descricao,
         valor: item.valor,
         data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
         categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
         conta: item.conta,
-        notas: item.notas,
+        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+      })),
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+export const despesaDescricaoRota = async (req, res) => {
+  try {
+    const { descricao } = req.query;
+
+    const despesa = await despesaDescricaoService(descricao);
+
+    if (despesa.length === 0) {
+      return res.status(400).send({ mensagem: "Despesa não encontrada" });
+    }
+
+    res.send({
+      results: despesa.map((item) => ({
+        id: item._id,
+        descricao: item.descricao,
+        valor: item.valor,
+        data: item.data,
+        categoria: item.categoria,
+        conta: item.conta,
         usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
       })),
     });
@@ -90,34 +114,25 @@ export const despesaId = async (req, res) => {
 export const atualizarDespesa = async (req, res) => {
   try {
     const {
+      descricao,
       valor,
       data,
-      descricao,
-      tipoTransacao,
       categoria,
-      formaPagamento,
       conta,
-      notas,
-      categoriaPersonalizada,
     } = req.body;
     const { id } = req.params;
 
-    const tiposValidos = ["Despesa", "Receita"];
-    if (!tiposValidos.includes(tipoTransacao)) {
-      return res.status(400).send({ mensagem: "Tipo de transação inválido!" });
+    const despesa = await pesIDService(id);
+    if (!despesa) {
+      return res.status(404).send({ mensagem: "Despesa não encontrada" });
     }
 
-    const transacao = await pesIDService(id);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
-    }
-
-    /* if (transacao.Usuario._id.toString() !== req.UsuarioId) {
-            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
+    /* if (despesa.Usuario._id.toString() !== req.UsuarioId) {
+            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa despesa' });
         } */
 
     const camposAlterados = Object.keys(req.body).filter(
-      (key) => req.body[key] !== transacao[key]
+      (key) => req.body[key] !== despesa[key]
     );
 
     if (camposAlterados.length === 0) {
@@ -126,21 +141,17 @@ export const atualizarDespesa = async (req, res) => {
 
     await atualizarDespesaService(
       id,
+      descricao,
       valor,
       data,
-      descricao,
-      tipoTransacao,
       categoria,
-      formaPagamento,
       conta,
-      notas,
-      categoriaPersonalizada
     );
 
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
+    res.status(200).send({ mensagem: "Despesa atualizada com sucesso!" });
   } catch (error) {
     res.status(500).send({ mensagem: error.message });
   }
@@ -155,23 +166,23 @@ export const deletarDespesa = async (req, res) => {
       ? new mongoose.Types.ObjectId(id)
       : null;
     if (!objectId) {
-      return res.status(400).send({ mensagem: "ID de transação inválido" });
+      return res.status(400).send({ mensagem: "ID da despesa inválido" });
     }
 
-    const transacao = await pesIDService(objectId);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
+    const despesa = await pesIDService(objectId);
+    if (!despesa) {
+      return res.status(404).send({ mensagem: "despesa não encontrada" });
     }
 
-    if (transacao.Usuario._id.toString() != req.UsuarioId) {
+    if (despesa.Usuario._id.toString() != req.UsuarioId) {
       return res.status(403).send({
-        mensagem: "Você não tem permissão para deletar essa transação",
+        mensagem: "Você não tem permissão para deletar essa despesa",
       });
     }
 
     await deletarDespesaService(objectId);
 
-    res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
+    res.status(200).send({ mensagem: "despesa deletada com sucesso!" });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }

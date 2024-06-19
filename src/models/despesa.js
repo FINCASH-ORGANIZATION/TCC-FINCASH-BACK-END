@@ -4,7 +4,7 @@ const despesaSchema = new mongoose.Schema({
   descricao: {
     type: String,
     required: true,
-  }, // descricao, valor, data, categoria, conta
+  },
   valor: {
     type: Number,
     required: true,
