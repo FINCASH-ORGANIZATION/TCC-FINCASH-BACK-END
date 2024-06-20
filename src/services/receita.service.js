@@ -14,7 +14,6 @@ export const receitaDescricaoService = (descricao) =>
         descricao: { $regex: `${descricao || ""}`, $options: "i" }
     })
         .sort({ _id: -1 })
-        .populate('categoria')
         .populate('Usuario');
 
 // Função para atualizar uma receita por ID

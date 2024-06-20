@@ -10,6 +10,11 @@ const contaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  banco: {
+    type: String,
+    enum: ["Banco do Brasil", "Caixa", "Itau", "Santander", "Nubank", "Bradesco", "Inter"],
+    required: true,
+  },
   Usuario: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Usuario",
@@ -20,3 +25,4 @@ const contaSchema = new mongoose.Schema({
 const conta = mongoose.model("conta", contaSchema);
 
 export default conta;
+

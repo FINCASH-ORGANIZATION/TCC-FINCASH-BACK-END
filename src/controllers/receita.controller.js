@@ -33,13 +33,13 @@ export const criarReceita = async (req, res) => {
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Uma Nova receita foi feita!" });
+    res.status(200).send({ mensagem: "Uma Nova receita foi feita!", receita: novaReceita });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 };
 
-/* Função que retorna para o usuário todas as receitas que da sua conta */
+/* Função que retorna para o usuário todas as receitas que estão na sua conta */
 export const pesReceitaRota = async (req, res) => {
   try {
     const id = req.UsuarioId;

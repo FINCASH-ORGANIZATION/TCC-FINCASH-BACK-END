@@ -1,29 +1,20 @@
 import conta from "../models/conta.js";
 
-export const criarDespesaService = (body) => contacreate(body);
+export const criarContaService = (body) => conta.create(body);
 
-// Função para buscar todas as conta
-export const pesDespesaService = () => despesa.find().populate('Usuario');;
+// Função para buscar todas as conta do próprio usuário
+export const pesContaService = () => conta.find().populate('Usuario');;
 
-// Função para buscar uma despesa pelo seu Id
-export const pesDespesaIdService = (id) => despesa.findById(id).populate('Usuario');
+// Função para buscar uma conta pelo seu Id
+export const pesContaIdService = (id) => conta.findById(id).populate('Usuario');
 
-// Função para buscar uma despesa pela sua descrição
-export const despesaDescricaoService = (descricao) =>
-    despesa.find({
-        descricao: { $regex: `${descricao || ""}`, $options: "i" }
-    })
-        .sort({ _id: -1 })
-        .populate('categoria')
-        .populate('Usuario');
-
-// Função para atualizar uma despesa por ID
-export const atualizarDespesaService = (id, descricao, valor, data, categoria, conta) =>
-    despesa.findByIdAndUpdate(
+// Função para atualizar uma conta
+export const atualizarContaService = (id, valor, descricao, ) =>
+    conta.findByIdAndUpdate(
         id,
-        { descricao, valor, data, categoria, conta },
+        { valor, descricao,  },
         { new: true, rawResult: true }
     );
 
-// Função para deletar uma despesa por ID
-export const deletarDespesaService = (id) => despesa.findByIdAndDelete({ _id: id });
+// Função para deletar uma conta
+export const deletarContaService = (id) => conta.findByIdAndDelete({ _id: id });

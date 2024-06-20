@@ -1,13 +1,13 @@
 import {
-    criarContaService,
-    pesContaService,
-    pesContaIdService,
-    atualizarContaService,
-    deletarContaService,
-} from "../services/conta.service.js";
+    criarCartaoService,
+    pesCartaoService,
+    pesCartaoIdService,
+    atualizarCartaoService,
+    deletarCartaoService,
+} from "../services/cartoes.service.js";
 
 // Rota para criar um novo cartão de crédito
-export const criarConta = async (req, res) => {
+export const criarCartao = async (req, res) => {
     try {
         const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
 
@@ -23,7 +23,6 @@ export const criarConta = async (req, res) => {
             vencimento,
             conta,
             Usuario: req.UsuarioId,
-
         });
 
         res.status(201).send({ mensagem: "Cartão de crédito adicionado com sucesso!", cartao: novoCartao });
@@ -33,7 +32,7 @@ export const criarConta = async (req, res) => {
 };
 
 // Função que retorna todos os cartões de crédito cadastrados no banco de dados de todos os usuários
-export const pesContaRota = async (req, res) => {
+export const pesCartaoRota = async (req, res) => {
     try {
         const cartoes = await pesCartaoService();
 
@@ -50,7 +49,7 @@ export const pesContaRota = async (req, res) => {
                 fechamento: item.fechamento,
                 vencimento: item.vencimento,
                 conta: item.conta,
-                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!"
+                usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
             })),
         });
     } catch (error) {
@@ -58,8 +57,8 @@ export const pesContaRota = async (req, res) => {
     }
 };
 
-// Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela
-export const pesContaIdRota = async (req, res) => {
+// Função que permite pesquisar o cartão pelo seu Id
+export const pesCartaoIdRota = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -85,7 +84,7 @@ export const pesContaIdRota = async (req, res) => {
     };
 
 // Rota para editar um cartão de crédito
-export const atualizarConta = async (req, res) => {
+export const atualizarCartao = async (req, res) => {
     try {
         const { id } = req.params;
         const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
@@ -119,7 +118,7 @@ export const atualizarConta = async (req, res) => {
 };
 
 // Rota para deletar um cartão de crédito
-export const deletarConta = async (req, res) => {
+export const deletarCartao = async (req, res) => {
     try {
         const { id } = req.params;
 

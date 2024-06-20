@@ -12,6 +12,7 @@ import {
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from '../models/Usuario.js';
 import mongoose from "mongoose";
+import transacao from "../models/transacao.js";
 
 /* Função criar transação */
 export const criarTransacaoRota = async (req, res) => {
@@ -56,7 +57,7 @@ export const criarTransacaoRota = async (req, res) => {
         const saldo = await calcularSaldo(req.UsuarioId);
         await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-        res.status(200).send({ mensagem: "Uma Nova transação foi feita!" });
+        res.status(200).send({ mensagem: "Uma Nova transação foi feita!", transacao: novaTransacao });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }

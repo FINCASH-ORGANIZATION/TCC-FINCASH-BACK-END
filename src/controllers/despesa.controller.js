@@ -33,13 +33,13 @@ export const criarDespesa = async (req, res) => {
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Uma Nova despesa foi feita!" });
+    res.status(200).send({ mensagem: "Uma Nova despesa foi feita!", despesa: novaDespesa });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 };
 
-/* Função que retorna todas as despesas cadastradas no banco de dados de todos os usuários */
+/* Função que retorna todas as despesas que estão na sua conta */
 export const pesDespesaRota = async (req, res) => {
   try {
     const id = req.UsuarioId;
