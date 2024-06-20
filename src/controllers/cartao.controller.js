@@ -1,13 +1,13 @@
 import {
-    criarCartaoService,
-    pesCartaoService,
-    pesCartaoIdService,
-    atualizarCartaoService,
-    deletarCartaoService,
-} from "../services/cartoes.service.js";
+    criarContaService,
+    pesContaService,
+    pesContaIdService,
+    atualizarContaService,
+    deletarContaService,
+} from "../services/conta.service.js";
 
 // Rota para criar um novo cartão de crédito
-export const criarCartao = async (req, res) => {
+export const criarConta = async (req, res) => {
     try {
         const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
 
@@ -33,7 +33,7 @@ export const criarCartao = async (req, res) => {
 };
 
 // Função que retorna todos os cartões de crédito cadastrados no banco de dados de todos os usuários
-export const pesCartaoRota = async (req, res) => {
+export const pesContaRota = async (req, res) => {
     try {
         const cartoes = await pesCartaoService();
 
@@ -59,7 +59,7 @@ export const pesCartaoRota = async (req, res) => {
 };
 
 // Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela
-export const pesCartaoIdRota = async (req, res) => {
+export const pesContaIdRota = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -79,13 +79,13 @@ export const pesCartaoIdRota = async (req, res) => {
             conta: cartao.conta,
             usuario: cartao.Usuario ? cartao.Usuario : "Usuário não encontrado!"
         });
-    } catch (error) {
-        res.status(500).send({ message: error.message });
-    }
-};
+        } catch (error) {
+            res.status(500).send({ message: error.message });
+        }
+    };
 
 // Rota para editar um cartão de crédito
-export const atualizarCartao = async (req, res) => {
+export const atualizarConta = async (req, res) => {
     try {
         const { id } = req.params;
         const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
@@ -119,7 +119,7 @@ export const atualizarCartao = async (req, res) => {
 };
 
 // Rota para deletar um cartão de crédito
-export const deletarCartao = async (req, res) => {
+export const deletarConta = async (req, res) => {
     try {
         const { id } = req.params;
 

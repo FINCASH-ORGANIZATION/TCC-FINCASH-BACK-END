@@ -18,7 +18,7 @@ export const criarTransacaoRota = async (req, res) => {
     try {
         const { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada } = req.body;
 
-        if (!valor || !data || !tipoTransacao || !categoria || !formaPagamento || !conta) {
+        if (!valor || !data || !tipoTransacao || !categoria || !conta) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 

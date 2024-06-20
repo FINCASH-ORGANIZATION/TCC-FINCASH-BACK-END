@@ -48,6 +48,7 @@ export const pesDespesaRota = async (req, res) => {
 
     res.send({
       results: despesa.map((item) => ({
+        id: item._id,
         descricao: item.descricao,
         valor: item.valor,
         data: item.data,
@@ -61,23 +62,24 @@ export const pesDespesaRota = async (req, res) => {
   }
 };
 
-/* Função que retorna para o usuário todas as despesas da sua conta */
+/* Função que para pesquisar uma despesa pela seu Id */
 export const despesaId = async (req, res) => {
   try {
-    const id = req.UsuarioId;
+    const { id } = req.params;
 
     const despesa = await pesDespesaIdService(id);
+    if (!despesa) {
+      return res.status(404).send({ mensagem: "Despesa não encontrada" });
+    }
 
     res.send({
-      results: despesa.map((item) => ({
-        id: item._id,
-        descricao: item.descricao,
-        valor: item.valor,
-        data: item.data,
-        categoria: item.categoria,
-        conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
+      id: despesa._id,
+      descricao: despesa.descricao,
+      valor: despesa.valor,
+      data: despesa.data,
+      categoria: despesa.categoria,
+      conta: despesa.conta,
+      usuario: despesa.Usuario ? despesa.Usuario : "Usuário não encontrado!",
     });
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -113,77 +115,69 @@ export const despesaDescricaoRota = async (req, res) => {
 /* Função para o usuário atualizar os dados de dentro da despesa que ele estiver manipulando */
 export const atualizarDespesa = async (req, res) => {
   try {
-    const {
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta,
-    } = req.body;
+    const { descricao, valor, data, categoria, conta } = req.body;
     const { id } = req.params;
 
-    const despesa = await pesIDService(id);
-    if (!despesa) {
+    // Busca a despesa pelo ID
+    const despesaExistente = await pesDespesaIdService(id);
+
+    // Verifica se a despesa existe
+    if (!despesaExistente) {
       return res.status(404).send({ mensagem: "Despesa não encontrada" });
     }
 
-    /* if (despesa.Usuario._id.toString() !== req.UsuarioId) {
-            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa despesa' });
-        } */
-
+    // Verifica se houve alterações nos campos
     const camposAlterados = Object.keys(req.body).filter(
-      (key) => req.body[key] !== despesa[key]
+      (key) => req.body[key] !== despesaExistente[key]
     );
 
+    // Se não houver alterações, retorna um erro
     if (camposAlterados.length === 0) {
       return res.status(400).send({ mensagem: "Faça ao menos uma alteração!" });
     }
 
-    await atualizarDespesaService(
-      id,
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta,
-    );
+    // Atualiza a despesa com os novos valores
+    await atualizarDespesaService(id, descricao, valor, data, categoria, conta);
 
-    const saldo = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
+    // Recalcula o saldo após a atualização da despesa
+    const saldoAtualizado = await calcularSaldo(req.UsuarioId);
+    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo: saldoAtualizado });
 
+    // Retorna uma mensagem de sucesso
     res.status(200).send({ mensagem: "Despesa atualizada com sucesso!" });
   } catch (error) {
+    // Trata os erros
     res.status(500).send({ mensagem: error.message });
   }
 };
 
 /* Função para deletar as despesa */
 export const deletarDespesa = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const objectId = mongoose.Types.ObjectId.isValid(id)
-      ? new mongoose.Types.ObjectId(id)
-      : null;
-    if (!objectId) {
-      return res.status(400).send({ mensagem: "ID da despesa inválido" });
+    try {
+      const { id } = req.params;
+  
+      const objectId = mongoose.Types.ObjectId.isValid(id)
+        ? new mongoose.Types.ObjectId(id)
+        : null;
+      if (!objectId) {
+        return res.status(400).send({ mensagem: "Id da despesa inválido" });
+      }
+  
+      const despesa = await deletarDespesaService(objectId);
+      if (!despesa) {
+        return res.status(404).send({ mensagem: "despesa não encontrada" });
+      }
+  
+      if (despesa.Usuario._id.toString() != req.UsuarioId) {
+        return res.status(403).send({
+          mensagem: "Você não tem permissão para deletar essa despesa",
+        });
+      }
+  
+      await deletarDespesaService(objectId);
+  
+      res.status(200).send({ mensagem: "Despesa deletada com sucesso!" });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
     }
-
-    const despesa = await pesIDService(objectId);
-    if (!despesa) {
-      return res.status(404).send({ mensagem: "despesa não encontrada" });
-    }
-
-    if (despesa.Usuario._id.toString() != req.UsuarioId) {
-      return res.status(403).send({
-        mensagem: "Você não tem permissão para deletar essa despesa",
-      });
-    }
-
-    await deletarDespesaService(objectId);
-
-    res.status(200).send({ mensagem: "despesa deletada com sucesso!" });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
+  };

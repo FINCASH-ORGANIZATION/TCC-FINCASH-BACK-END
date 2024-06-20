@@ -1,8 +1,8 @@
-import despesa from "../models/despesa.js";
+import conta from "../models/conta.js";
 
-export const criarDespesaService = (body) => despesa.create(body);
+export const criarDespesaService = (body) => contacreate(body);
 
-// Função para buscar todas as despesas
+// Função para buscar todas as conta
 export const pesDespesaService = () => despesa.find().populate('Usuario');;
 
 // Função para buscar uma despesa pelo seu Id

@@ -10,7 +10,7 @@ export const pesReceitaIdService = (id) => receita.findById(id).populate('Usuari
 
 // Função para buscar uma receita pela sua descrição
 export const receitaDescricaoService = (descricao) =>
-    transacao.find({
+    receita.find({
         descricao: { $regex: `${descricao || ""}`, $options: "i" }
     })
         .sort({ _id: -1 })
@@ -18,10 +18,10 @@ export const receitaDescricaoService = (descricao) =>
         .populate('Usuario');
 
 // Função para atualizar uma receita por ID
-export const atualizarReceitaService = (id, body) =>
+export const atualizarReceitaService = (id, descricao, valor, data, categoria, conta) =>
     receita.findByIdAndUpdate(
-        { _id: id },
-        { ...body },
+        id,
+        { descricao, valor, data, categoria, conta },
         { new: true, rawResult: true }
     );
 
