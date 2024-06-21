@@ -9,14 +9,14 @@ import {
 // Rota para criar um novo cartão de crédito
 export const criarCartao = async (req, res) => {
     try {
-        const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
+        const { valor, limite, descricao, fechamento, vencimento, conta } = req.body;
 
-        if (!nomeCartao || !limite || !fechamento || !vencimento || !conta) {
+        if (!valor || !limite || !fechamento || !vencimento || !conta) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 
         const novoCartao = await criarCartaoService({
-            nomeCartao,
+            valor,
             limite,
             descricao,
             fechamento,
@@ -43,7 +43,7 @@ export const pesCartaoRota = async (req, res) => {
         res.send({
             results: cartoes.map((item) => ({
                 id: item._id,
-                nomeCartao: item.nomeCartao,
+                valor: item.valor,
                 limite: item.limite,
                 descricao: item.descricao,
                 fechamento: item.fechamento,
@@ -70,7 +70,7 @@ export const pesCartaoIdRota = async (req, res) => {
 
         res.send({
             id: cartao._id,
-            nomeCartao: cartao.nomeCartao,
+            valor: cartao.valor,
             limite: cartao.limite,
             descricao: cartao.descricao,
             fechamento: cartao.fechamento,
@@ -87,16 +87,16 @@ export const pesCartaoIdRota = async (req, res) => {
 export const atualizarCartao = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nomeCartao, limite, descricao, fechamento, vencimento, conta } = req.body;
+        const { valor, limite, descricao, fechamento, vencimento, conta } = req.body;
 
         // Verifique se pelo menos um dos campos está sendo atualizado
-        if (!nomeCartao && !limite && !descricao && !fechamento && !vencimento && !conta) {
+        if (!valor && !limite && !descricao && !fechamento && !vencimento && !conta) {
             return res.status(400).send({ mensagem: 'Faça ao menos uma alteração!' });
         }
 
         // Crie um objeto com os campos a serem atualizados
         const camposAtualizados = {};
-        if (nomeCartao) camposAtualizados.nomeCartao = nomeCartao;
+        if (valor) camposAtualizados.valor = valor;
         if (limite) camposAtualizados.limite = limite;
         if (descricao) camposAtualizados.descricao = descricao;
         if (fechamento) camposAtualizados.fechamento = fechamento;

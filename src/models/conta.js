@@ -8,7 +8,7 @@ const contaSchema = new mongoose.Schema({
   },
   descricao: {
     type: String,
-    required: true,
+    required: false,
   },
   banco: {
     type: String,
@@ -25,4 +25,3 @@ const contaSchema = new mongoose.Schema({
 const conta = mongoose.model("conta", contaSchema);
 
 export default conta;
-

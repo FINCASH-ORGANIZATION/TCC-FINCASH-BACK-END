@@ -14,7 +14,7 @@ const validDays = {
 };
 
 const CartaoCreditoSchema = new mongoose.Schema({
-    nomeCartao: {
+    valor: {
         type: String,
         required: true
     },

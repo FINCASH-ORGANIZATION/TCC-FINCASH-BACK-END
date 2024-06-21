@@ -5,20 +5,20 @@ import {
     atualizarContaService,
     deletarContaService,
 } from "../services/conta.service.js";
-import Usuario from '../models/Usuario.js';
 
 // Rota para criar um novo conta
 export const criarConta = async (req, res) => {
     try {
-        const { valor, descricao } = req.body;
+        const { valor, descricao, banco } = req.body;
 
-        if (!valor || !descricao) {
+        if (!valor || !banco) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 
         const novaConta = await criarContaService({
             valor,
             descricao,
+            banco,
             Usuario: req.UsuarioId,
         });
 
@@ -40,6 +40,7 @@ export const pesContaRota = async (req, res) => {
                 id: item._id,
                 valor: item.valor,
                 descricao: item.descricao,
+                banco: item.banco,
                 usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
             })),
         });
@@ -63,6 +64,7 @@ export const pesContaIdRota = async (req, res) => {
             id: conta._id,
             valor: conta.valor,
             descricao: conta.descricao,
+            banco: conta.banco,
             usuario: conta.Usuario ? conta.Usuario : "Usuário não encontrado!"
         });
     } catch (error) {
@@ -74,10 +76,10 @@ export const pesContaIdRota = async (req, res) => {
 export const atualizarConta = async (req, res) => {
     try {
         const { id } = req.params;
-        const { valor, descricao } = req.body;
+        const { valor, descricao, banco } = req.body;
 
         // Verifique se pelo menos um dos campos está sendo atualizado
-        if (!valor && !descricao) {
+        if (!valor && !descricao && !banco) {
             return res.status(400).send({ mensagem: 'Faça ao menos uma alteração!' });
         }
 
@@ -85,6 +87,7 @@ export const atualizarConta = async (req, res) => {
         const camposAtualizados = {};
         if (valor) camposAtualizados.valor = valor;
         if (descricao) camposAtualizados.descricao = descricao;
+        if (banco) camposAtualizados.banco = banco;
 
         // Chame o serviço para atualizar a conta
         const contaAtualizado = await atualizarContaService(id, camposAtualizados);
