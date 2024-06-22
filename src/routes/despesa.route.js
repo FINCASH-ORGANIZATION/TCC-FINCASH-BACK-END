@@ -18,7 +18,7 @@ rota.get("/lista", authMiddlewares, pesDespesaRota);
 rota.get("/:id", authMiddlewares, despesaId);
 
 // Rota para pesquisar uma despesa pela sua descrição
-rota.get("/descricao", despesaDescricaoRota);
+rota.get("/descricao", authMiddlewares, despesaDescricaoRota);
 
 // Rota para criar uma despesa
 rota.post("/", authMiddlewares, criarDespesa);

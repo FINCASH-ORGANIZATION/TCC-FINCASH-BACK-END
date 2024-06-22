@@ -11,7 +11,7 @@ import Usuario from "../models/Usuario.js";
 import mongoose from "mongoose";
 
 /* Função criar despesa */
-export const criarDespesa = async (req, res) => {
+/* export const criarDespesa = async (req, res) => {
   try {
     const { descricao, valor, data, categoria, conta } = req.body;
 
@@ -36,6 +36,43 @@ export const criarDespesa = async (req, res) => {
     res.status(200).send({ mensagem: "Uma Nova despesa foi feita!", despesa: novaDespesa });
   } catch (error) {
     res.status(500).send({ message: error.message });
+  }
+}; */
+
+export const criarDespesa = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
+  try {
+    const { descricao, valor, data, categoria, conta } = req.body;
+
+    if (!descricao || !valor || !data || !categoria || !conta) {
+      return res.status(400).send({ mensagem: 'Por favor, preencha todos os campos!' });
+    }
+
+    const novaDespesa = await criarDespesaService({
+      descricao,
+      valor,
+      data,
+      categoria,
+      conta,
+      Usuario: req.UsuarioId,
+    }, { session });
+
+    const usuarioAtualizado = await Usuario.findByIdAndUpdate(
+      req.UsuarioId,
+      { $inc: { saldo: -valor } },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).send({ mensagem: 'Uma Nova despesa foi feita!', despesa: novaDespesa, saldoAtualizado: usuarioAtualizado.saldo });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).send({ mensagem: error.message });
   }
 };
 
