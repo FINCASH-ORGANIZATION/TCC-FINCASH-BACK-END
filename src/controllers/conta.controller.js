@@ -9,16 +9,16 @@ import {
 // Rota para criar um novo conta
 export const criarConta = async (req, res) => {
     try {
-        const { valor, descricao, banco } = req.body;
+        const { valor, descricao, /* banco */ } = req.body;
 
-        if (!valor || !banco) {
+        if (!valor /* || !banco */) {
             return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
         }
 
         const novaConta = await criarContaService({
             valor,
             descricao,
-            banco,
+            /* banco, */
             Usuario: req.UsuarioId,
         });
 

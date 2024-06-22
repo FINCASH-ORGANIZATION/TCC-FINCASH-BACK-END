@@ -1,10 +1,10 @@
-import transacao from "../models/transacao.js";
+import Transacao from "../models/transacao.js";
 import Usuario from "../models/Usuario.js";
 
 export const calcularSaldo = async (UsuarioId) => {
   try {
     console.log(`Buscando transações para usuário ${UsuarioId}`);
-    const transacoes = await transacao.find({ Usuario: UsuarioId });
+    const transacoes = await Transacao.find({ usuario: UsuarioId }).populate('usuario');
     console.log(`Transações encontradas: ${transacoes.length}`);
 
     let saldo = 0;

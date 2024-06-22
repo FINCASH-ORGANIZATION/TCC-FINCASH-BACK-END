@@ -1,32 +1,32 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const despesaSchema = new mongoose.Schema({
   descricao: {
     type: String,
-    required: true,
+    required: true
   },
   valor: {
     type: Number,
-    required: true,
-    min: 1,
-  },
+    required: true
+  },  
   data: {
     type: Date,
-    required: true,
+    default: Date.now
   },
   categoria: {
     type: String,
-    required: true,
+    required: true
   },
   conta: {
-    type: String,
-    required: true,
-  },
-  Usuario: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Usuario",
-    required: true,
+    ref: 'Conta',
+    required: true
   },
+  usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
+  }
 });
 
 const despesa = mongoose.model("despesa", despesaSchema);

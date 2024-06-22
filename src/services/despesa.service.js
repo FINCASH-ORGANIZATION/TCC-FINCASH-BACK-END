@@ -1,6 +1,10 @@
 import despesa from "../models/despesa.js";
+import transacao from '../models/transacao.js';
 
-export const criarDespesaService = (body) => despesa.create(body);
+export const criarDespesaService = async (despesaData, options) => {
+  const novaDespesa = new transacao(despesaData);
+  return await novaDespesa.save(options);
+};
 
 // Função para buscar todas as despesas
 export const pesDespesaService = () => despesa.find().populate('Usuario');;

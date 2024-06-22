@@ -168,6 +168,42 @@ export const pesDescricaoRota = async (req, res) => {
     }
 };
 
+// Função para pesquisar a transação pela descrição de acordo com o usuário logado
+export const pesDescricaoRotaId = async (req, res) => {
+    try {
+      const { descricao } = req.query;
+
+      console.log("Descrição recebida:", descricao);
+
+      const transacao = await pesqDescricaoService(descricao, req.UsuarioId);
+
+      console.log("Resultados da pesquisa:", transacao);
+
+      if (transacao.length === 0) {
+        return res
+          .status(400)
+          .send({ mensagem: "Transação não localizada no servidor!" });
+      }
+
+      res.send({
+        results: transacao.map((item) => ({
+          id: item._id,
+          valor: item.valor,
+          data: item.data,
+          descricao: item.descricao,
+          tipoTransacao: item.tipoTransacao,
+          categoria: item.categoria,
+          formaPagamento: item.formaPagamento,
+          conta: item.conta,
+          notas: item.notas,
+          usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+        })),
+      });
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  };
+
 /* Função que retorna para o usuário todas as transações que estão na sua conta */
 export const pesUsuarioRota = async (req, res) => {
     try {
