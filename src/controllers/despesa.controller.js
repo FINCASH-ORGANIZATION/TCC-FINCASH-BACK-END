@@ -8,7 +8,65 @@ import {
 } from "../services/despesa.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
+import Conta from "../models/conta.js";
 import mongoose from "mongoose";
+
+// Função para criar despesa
+export const criarDespesa = async (req, res) => {
+  try {
+    const { descricao, valor, data, categoria, contaId } = req.body; // Aqui estou assumindo que o ID da conta é enviado como 'contaId'
+
+    console.log('Dados recebidos:', req.body); // Log dos dados recebidos
+
+    if (!descricao || !valor || !data || !categoria || !contaId) {
+      return res.status(400).send({ mensagem: 'Por favor, preencha todos os campos!' });
+    }
+
+    const contaExistente = await Conta.findById(contaId);
+    if (!contaExistente) {
+      return res.status(400).send({ mensagem: 'Conta não encontrada!' });
+    }
+
+    console.log('Conta encontrada:', contaExistente); // Log da conta encontrada
+
+    // Calcula o saldo atual do usuário
+    const saldoAtual = await calcularSaldo(req.UsuarioId); // Certifique-se de que esta função está implementada corretamente
+
+    console.log('Saldo atual:', saldoAtual); // Log do saldo atual
+
+    // Verifica se o saldo atual é suficiente para a despesa
+    if (saldoAtual < valor) {
+      return res.status(400).send({ mensagem: 'Saldo insuficiente para realizar a despesa!' });
+    }
+
+    // Cria a nova despesa
+    const novaDespesa = await criarDespesaService({
+      descricao,
+      valor,
+      data,
+      categoria,
+      conta: contaId,
+      usuario: req.UsuarioId
+    });
+
+    console.log('Nova despesa criada:', novaDespesa); // Log da nova despesa criada
+
+    // Atualiza o saldo do usuário subtraindo o valor da despesa
+    const novoSaldo = saldoAtual - valor;
+    await Usuario.findOneAndUpdate(
+      { _id: req.UsuarioId },
+      { $set: { saldo: novoSaldo } },
+      { new: true }
+    );
+
+    console.log('Saldo atualizado:', novoSaldo); // Log do saldo atualizado
+
+    res.status(200).send({ mensagem: 'Uma nova despesa foi feita!', despesa: novaDespesa });
+  } catch (error) {
+    console.error('Erro ao criar despesa:', error); // Log de erro
+    res.status(500).send({ mensagem: error.message });
+  }
+};
 
 /* Função criar despesa */
 /* export const criarDespesa = async (req, res) => {
@@ -39,43 +97,6 @@ import mongoose from "mongoose";
   }
 }; */
 
-export const criarDespesa = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
-  try {
-    const { descricao, valor, data, categoria, conta } = req.body;
-
-    if (!descricao || !valor || !data || !categoria || !conta) {
-      return res.status(400).send({ mensagem: 'Por favor, preencha todos os campos!' });
-    }
-
-    const novaDespesa = await criarDespesaService({
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta,
-      Usuario: req.UsuarioId,
-    }, { session });
-
-    const usuarioAtualizado = await Usuario.findByIdAndUpdate(
-      req.UsuarioId,
-      { $inc: { saldo: -valor } },
-      { new: true, session }
-    );
-
-    await session.commitTransaction();
-    session.endSession();
-
-    res.status(200).send({ mensagem: 'Uma Nova despesa foi feita!', despesa: novaDespesa, saldoAtualizado: usuarioAtualizado.saldo });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    res.status(500).send({ mensagem: error.message });
-  }
-};
-
 /* Função que retorna todas as despesas que estão na sua conta */
 export const pesDespesaRota = async (req, res) => {
   try {
@@ -91,7 +112,7 @@ export const pesDespesaRota = async (req, res) => {
         data: item.data,
         categoria: item.categoria,
         conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+        usuario: item.usuario ? item.usuario : "Usuário não encontrado!",
       })),
     });
   } catch (error) {
@@ -190,31 +211,31 @@ export const atualizarDespesa = async (req, res) => {
 
 /* Função para deletar as despesa */
 export const deletarDespesa = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const objectId = mongoose.Types.ObjectId.isValid(id)
-        ? new mongoose.Types.ObjectId(id)
-        : null;
-      if (!objectId) {
-        return res.status(400).send({ mensagem: "Id da despesa inválido" });
-      }
-  
-      const despesa = await deletarDespesaService(objectId);
-      if (!despesa) {
-        return res.status(404).send({ mensagem: "despesa não encontrada" });
-      }
-  
-      if (despesa.Usuario._id.toString() != req.UsuarioId) {
-        return res.status(403).send({
-          mensagem: "Você não tem permissão para deletar essa despesa",
-        });
-      }
-  
-      await deletarDespesaService(objectId);
-  
-      res.status(200).send({ mensagem: "Despesa deletada com sucesso!" });
-    } catch (error) {
-      res.status(500).send({ message: error.message });
+  try {
+    const { id } = req.params;
+
+    const objectId = mongoose.Types.ObjectId.isValid(id)
+      ? new mongoose.Types.ObjectId(id)
+      : null;
+    if (!objectId) {
+      return res.status(400).send({ mensagem: "Id da despesa inválido" });
     }
-  };
+
+    const despesa = await deletarDespesaService(objectId);
+    if (!despesa) {
+      return res.status(404).send({ mensagem: "despesa não encontrada" });
+    }
+
+    if (despesa.Usuario._id.toString() != req.UsuarioId) {
+      return res.status(403).send({
+        mensagem: "Você não tem permissão para deletar essa despesa",
+      });
+    }
+
+    await deletarDespesaService(objectId);
+
+    res.status(200).send({ mensagem: "Despesa deletada com sucesso!" });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};

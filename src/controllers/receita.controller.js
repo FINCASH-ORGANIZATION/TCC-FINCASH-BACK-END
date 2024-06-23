@@ -8,36 +8,112 @@ import {
 } from "../services/receita.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
+import Receita from "../models/receita.js";
+/* import { atualizarSaldo } from './saldo.controller.js'; */
+import Conta from "../models/conta.js";
+import {criartranService} from "../services/transacao.service.js"
 import mongoose from "mongoose";
 
-/* Função criar receita */
 export const criarReceita = async (req, res) => {
   try {
-    const { descricao, valor, data, categoria, conta } = req.body;
+    const { valor, descricao, data, categoria, conta } = req.body;
 
-    if (!descricao || !valor || !data || !categoria || !conta) {
-      return res
-        .status(400)
-        .send({ mensagem: "Por favor, preencha todos os campos!" });
+    // Verifique se todos os campos obrigatórios estão presentes
+    if (!valor || !conta || conta === "") {
+      return res.status(400).send({ mensagem: "Por favor, preencha todos os campos obrigatórios!" });
     }
 
-    const novaReceita = await criarReceitaService({
+    // Verificar se o usuário e a conta existem no banco de dados
+    const usuarioExistente = await Usuario.findById(req.UsuarioId);
+    if (!usuarioExistente) {
+      return res.status(404).send({ mensagem: "Usuário não encontrado!" });
+    }
+
+    const contaExistente = await Conta.findById(conta);
+    if (!contaExistente) {
+      return res.status(404).send({ mensagem: "Conta não encontrada!" });
+    }
+
+    const novaReceita = new Receita({
+      valor,
+      descricao,
+      data,
+      categoria,
+      usuario: req.UsuarioId, // Referenciando o ID do usuário
+      conta // Referenciando o ID da conta
+    });
+
+    await novaReceita.save();
+
+    // Criar transação automaticamente com base na receita criada
+    const transacao = await criartranService({
+      valor: novaReceita.valor,
+      data: novaReceita.data,
+      descricao: novaReceita.descricao,
+      tipoTransacao: "receita",
+      categoria: novaReceita.categoria,
+      conta: novaReceita.conta,
+      usuario: novaReceita.usuario
+    });
+
+    // Calcular e atualizar o saldo do usuário
+    const saldo = await calcularSaldo(req.UsuarioId);
+    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
+
+    res.status(200).send({ mensagem: "Uma nova receita foi criada!", receita: novaReceita, transacao });
+  } catch (error) {
+    console.error(error); // Adicionando log de erro para facilitar a depuração
+    res.status(500).send({ message: error.message });
+  }
+};
+
+
+/* export const criarReceita = async (req, res) => {
+  try {
+    console.log('Requisição recebida para criar uma nova receita:', req.body);
+
+    const { descricao, valor, data, categoria, contaId } = req.body;
+
+    if (!descricao || !valor || !data || !categoria || !contaId) {
+      console.log('Campos obrigatórios não preenchidos:', req.body);
+      return res
+        .status(400)
+        .send({ mensagem: 'Por favor, preencha todos os campos!' });
+    }
+
+    console.log('Dados da receita a ser criada:', {
       descricao,
       valor,
       data,
       categoria,
-      conta,
-      Usuario: req.UsuarioId,
+      conta: contaId,
+      usuario: req.UsuarioId,
     });
 
-    const saldo = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
+    const novaReceita = new Receita({
+      descricao,
+      valor,
+      data,
+      categoria,
+      conta: contaId,
+      usuario: req.UsuarioId,
+    });
 
-    res.status(200).send({ mensagem: "Uma Nova receita foi feita!", receita: novaReceita });
+    console.log('Nova receita criada:', novaReceita);
+
+    const receitaSalva = await novaReceita.save();
+
+    console.log('Receita salva no banco de dados:', receitaSalva);
+
+    // Atualizar o saldo do usuário
+    await atualizarSaldo(req.UsuarioId);
+
+    res.status(200).send({ mensagem: 'Uma Nova receita foi feita!', receita: receitaSalva });
   } catch (error) {
+    console.error('Erro ao criar receita:', error);
     res.status(500).send({ message: error.message });
   }
-};
+}; */
 
 /* Função que retorna para o usuário todas as receitas que estão na sua conta */
 export const pesReceitaRota = async (req, res) => {

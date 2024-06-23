@@ -5,7 +5,7 @@ import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 
 const rota = Router();
 
-rota.patch("/:id", authMiddlewares, atualizarSaldo);
 rota.get("/:id", authMiddlewares, exibirSaldo);
+rota.patch("/:id", authMiddlewares, atualizarSaldo);
 
 export default rota;
