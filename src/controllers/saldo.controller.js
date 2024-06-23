@@ -27,17 +27,16 @@ export const calcularSaldo = async (UsuarioId) => {
   }
 };
 
-export const atualizarSaldo = async (req, res) => {
+export const atualizarSaldo = async (UsuarioId) => {
   try {
-    const UsuarioId = req.body.UsuarioId || req.params.id;
     console.log(`Atualizando saldo para usuário ${UsuarioId}`);
     const saldo = await calcularSaldo(UsuarioId);
     console.log(`Saldo atualizado: ${saldo}`);
     await Usuario.findByIdAndUpdate(UsuarioId, { saldo });
-    res.status(200).send({ saldo });
+    return saldo;
   } catch (error) {
     console.error(`Erro ao atualizar saldo: ${error.message}`);
-    res.status(400).send({ message: error.message });
+    throw new Error("Erro ao atualizar saldo: " + error.message);
   }
 };
 
