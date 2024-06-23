@@ -1,34 +1,34 @@
 import mongoose from "mongoose";
 
 const receitaSchema = new mongoose.Schema({
-  descricao: {
-    type: String,
-    required: true,
-  }, // descricao, valor, data, categoria, formaRecebimento, conta
   valor: {
     type: Number,
-    required: true,
-    min: 1,
+    required: true
+  },
+  descricao: {
+    type: String,
+    required: false
   },
   data: {
     type: Date,
-    required: true,
+    default: Date.now
   },
   categoria: {
     type: String,
-    required: true,
+    required: false
+  },
+  usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
   },
   conta: {
-    type: String,
-    required: true,
-  },
-  Usuario: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Usuario",
-    required: true,
-  },
+    ref: 'Conta',
+    required: true
+  }
 });
 
-const receita = mongoose.model("Receita", receitaSchema);
+const Receita = mongoose.model("Receita", receitaSchema);
 
-export default receita;
+export default Receita;

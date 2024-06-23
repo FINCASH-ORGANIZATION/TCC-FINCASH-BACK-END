@@ -1,15 +1,6 @@
 import mongoose from "mongoose";
 
 const contaSchema = new mongoose.Schema({
-  valor: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-  descricao: {
-    type: String,
-    required: false,
-  },
   banco: {
     type: String,
     enum: ["Banco do Brasil", "Caixa", "Itau", "Santander", "Nubank", "Bradesco", "Inter"],
@@ -22,6 +13,6 @@ const contaSchema = new mongoose.Schema({
   },
 });
 
-const conta = mongoose.model("conta", contaSchema);
+const Conta = mongoose.model("Conta", contaSchema);
 
-export default conta;
+export default Conta;

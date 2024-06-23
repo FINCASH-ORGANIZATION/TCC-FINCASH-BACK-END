@@ -1,28 +1,28 @@
-import receita from "../models/receita.js";
+import Receita from "../models/receita.js";
 
-export const criarReceitaService = (body) => receita.create(body);
+export const criarReceitaService = (body) => Receita.create(body);
 
-// Função para buscar todas as receitas
-export const pesReceitaService = () => receita.find().populate('Usuario');;
+// Função para buscar todas as Receitas
+export const pesReceitaService = () => Receita.find().populate('Usuario');;
 
-// Função para buscar uma receita pelo seu Id
-export const pesReceitaIdService = (id) => receita.findById(id).populate('Usuario');
+// Função para buscar uma Receita pelo seu Id
+export const pesReceitaIdService = (id) => Receita.findById(id).populate('Usuario');
 
-// Função para buscar uma receita pela sua descrição
+// Função para buscar uma Receita pela sua descrição
 export const receitaDescricaoService = (descricao) =>
-    receita.find({
+    Receita.find({
         descricao: { $regex: `${descricao || ""}`, $options: "i" }
     })
         .sort({ _id: -1 })
         .populate('Usuario');
 
-// Função para atualizar uma receita por ID
+// Função para atualizar uma Receita por ID
 export const atualizarReceitaService = (id, descricao, valor, data, categoria, conta) =>
-    receita.findByIdAndUpdate(
+    Receita.findByIdAndUpdate(
         id,
         { descricao, valor, data, categoria, conta },
         { new: true, rawResult: true }
     );
 
-// Função para deletar um receita por ID
-export const deletarReceitaService = (id) => receita.findByIdAndDelete({ _id: id });
+// Função para deletar um Receita por ID
+export const deletarReceitaService = (id) => Receita.findByIdAndDelete({ _id: id });

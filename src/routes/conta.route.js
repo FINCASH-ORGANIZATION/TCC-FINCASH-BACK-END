@@ -4,7 +4,6 @@ import {
     pesContaRota,
     pesContaIdRota,
     criarConta,
-    atualizarConta,
     deletarConta,
 } from "../controllers/conta.controller.js";
 
@@ -18,9 +17,6 @@ rota.get("/:id", authMiddlewares, pesContaIdRota);
 
 // Rota para criar uma conta
 rota.post("/", authMiddlewares, criarConta);
-
-// Rota para atualizar uma conta
-rota.patch("/:id", authMiddlewares, atualizarConta);
 
 // Rota para deletar uma conta
 rota.delete("/:id", authMiddlewares, deletarConta);
