@@ -6,7 +6,6 @@ const rota = Router();
 import {
   criarUsu,
   pesUsu,
-  pesId,
   pesUsuId,
   UsuUpdate,
   deletarUsu,
