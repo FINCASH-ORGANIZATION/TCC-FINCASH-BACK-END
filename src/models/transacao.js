@@ -7,8 +7,7 @@ const transacaoSchema = new mongoose.Schema({
   },
   data: {
     type: Date,
-    default: Date.now,
-    get: v => `${v.getDate()}/${v.getMonth() + 1}/${v.getFullYear()}`
+    required: true,
   },
   descricao: {
     type: String,
@@ -20,25 +19,22 @@ const transacaoSchema = new mongoose.Schema({
     required: true,
   },
   categoria: {
-    type: String,
-        enum: [
-            'Salário',
-            'Alimentação',
-            'Transporte',
-            'Saúde',
-            'Educação',
-            'Lazer e entretenimento',
-            'Viagens',
-            'Emergências',
-            'Outros'
-        ],
-        required: true,
-    },
-  conta: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Conta",
+    ref: "categoriaTransacao",
     required: true,
   },
+  /* formaPagamento: {
+    type: String,
+    required: false,
+  }, */
+  conta: {
+    type: String,
+    required: true,
+  },
+  /* notas: {
+    type: String,
+    default: null,
+  }, */
   Usuario: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Usuario",

@@ -3,31 +3,30 @@ import mongoose from "mongoose";
 const receitaSchema = new mongoose.Schema({
   valor: {
     type: Number,
-    required: true,
+    required: true
   },
   descricao: {
     type: String,
-    required: false,
+    required: false
   },
   data: {
     type: Date,
-    default: Date.now,
-    get: v => `${v.getDate()}/${v.getMonth() + 1}/${v.getFullYear()}`
+    default: Date.now
   },
   categoria: {
     type: String,
-    required: true,
+    required: false
   },
-  Usuario: {
+  usuario: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Usuario",
-    required: true,
+    ref: 'Usuario',
+    required: true
   },
   conta: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Conta",
-    required: true,
-  },
+    ref: 'Conta',
+    required: true
+  }
 });
 
 const Receita = mongoose.model("Receita", receitaSchema);

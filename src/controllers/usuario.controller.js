@@ -86,6 +86,7 @@ export const pesUsuId = async (req, res) => {
 
     return res.status(200).send({ usuario });
   } catch (error) {
+    console.error("Erro ao buscar usuário por ID:", error);
     res.status(500).send({ message: error.message });
   }
 };

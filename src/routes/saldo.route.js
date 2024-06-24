@@ -1,9 +1,7 @@
 import { Router } from "express";
-import {
-  atualizarSaldo,
-  exibirSaldo,
-} from "../controllers/saldo.controller.js";
+import { atualizarSaldo, exibirSaldo } from "../controllers/saldo.controller.js";
 import { authMiddlewares } from "../middlewares/auth.middlewares.js";
+
 
 const rota = Router();
 

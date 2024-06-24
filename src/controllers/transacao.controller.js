@@ -1,3 +1,20 @@
+import categoriaTransacao from "../models/categoriaTransacao.js";
+import {
+  criartranService,
+  pestraService,
+  contarTranService,
+  pesIDService,
+  pesqDescricaoService,
+  pesUsuarioService,
+  atualizarTransService,
+  deletarTransService,
+} from "../services/transacao.service.js";
+import { calcularSaldo } from "./saldo.controller.js";
+import Usuario from "../models/Usuario.js";
+import mongoose from "mongoose";
+import transacao from "../models/transacao.js";
+
+/* Função criar transação */
 export const criarTransacaoRota = async (req, res) => {
   try {
     const {
@@ -9,6 +26,7 @@ export const criarTransacaoRota = async (req, res) => {
       formaPagamento,
       conta,
       notas,
+      categoriaPersonalizada,
     } = req.body;
 
     if (!valor || !data || !tipoTransacao || !categoria || !conta) {
@@ -17,23 +35,42 @@ export const criarTransacaoRota = async (req, res) => {
         .send({ mensagem: "Por favor, preencha todos os campos!" });
     }
 
+    let categoriaObj;
+
+    if (categoria === "Outros" && categoriaPersonalizada) {
+      categoriaObj = new categoriaTransacao({
+        tipo: categoria,
+        categoriaPersonalizada,
+        Usuario: req.UsuarioId,
+      });
+
+      await categoriaObj.save();
+    } else {
+      categoriaObj = await categoriaTransacao.findOne({ tipo: categoria });
+
+      if (!categoriaObj) {
+        return res.status(400).send({ mensagem: "Categoria inválida!" });
+      }
+    }
+
     const novaTransacao = await criartranService({
       valor,
       data,
       descricao,
       tipoTransacao,
-      categoria,
+      categoria: categoriaObj._id,
+      categoriaPersonalizada,
       formaPagamento,
       conta,
       notas,
       Usuario: req.UsuarioId,
     });
 
-    // Chame a função atualizarSaldo para atualizar o saldo do usuário
-    await atualizarSaldo(req.UsuarioId);
+    const saldo = await calcularSaldo(req.UsuarioId);
+    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
     res.status(200).send({
-      mensagem: "Uma nova transação foi feita!",
+      mensagem: "Uma Nova transação foi feita!",
       transacao: novaTransacao,
     });
   } catch (error) {
@@ -41,6 +78,7 @@ export const criarTransacaoRota = async (req, res) => {
   }
 };
 
+/* Função que retorna todas as transações cadastradas no banco de dados de todos os usuários */
 export const pesTransacaoRota = async (req, res) => {
   try {
     let { limit, offset } = req.query;
@@ -52,22 +90,23 @@ export const pesTransacaoRota = async (req, res) => {
     const total = await contarTranService();
     const currentURL = req.baseUrl;
 
-    if (transacao.length === 0) {
-      return res
-        .status(400)
-        .send({ mensagem: "Não há transações registradas!" });
-    }
-
     const avancar = offset + limit;
     const avancarURL =
       avancar < total
         ? `${currentURL}?limit=${limit}&offset=${avancar}`
         : "Sem registros!";
+
     const anterior = offset - limit < 0 ? null : offset - limit;
     const antigaURL =
       anterior != null
         ? `${currentURL}?limit=${limit}&offset=${anterior}`
         : "Sem registros!";
+
+    if (transacao.length === 0) {
+      return res
+        .status(400)
+        .send({ mensagem: "Não há transações registradas!" });
+    }
 
     res.send({
       avancarURL,
@@ -93,6 +132,7 @@ export const pesTransacaoRota = async (req, res) => {
   }
 };
 
+/* Função para pesquisar a transação pelo id */
 export const pesquisaIDRota = async (req, res) => {
   try {
     const { id } = req.params;
@@ -123,11 +163,16 @@ export const pesquisaIDRota = async (req, res) => {
   }
 };
 
-export const pesDescricaoRota = async (req, res) => {
+/* Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela */
+/*export const pesDescricaoRota = async (req, res) => {
   try {
     const { descricao } = req.query;
 
+    console.log("Descrição recebida:", descricao);
+
     const transacao = await pesqDescricaoService(descricao);
+
+    console.log("Resultados da pesquisa:", transacao);
 
     if (transacao.length === 0) {
       return res
@@ -152,15 +197,21 @@ export const pesDescricaoRota = async (req, res) => {
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
-};
+};*/
 
 export const pesDescricaoRotaId = async (req, res) => {
   try {
     const { descricao } = req.query;
 
+    console.log("Descrição recebida:", descricao);
+    console.log("ID do usuário:", req.UsuarioId);
+
     const transacao = await pesqDescricaoService(descricao, req.UsuarioId);
 
+    console.log("Resultados da pesquisa:", transacao);
+
     if (transacao.length === 0) {
+      console.log("Nenhuma transação encontrada.");
       return res
         .status(400)
         .send({ mensagem: "Transação não localizada no servidor!" });
@@ -181,10 +232,12 @@ export const pesDescricaoRotaId = async (req, res) => {
       })),
     });
   } catch (error) {
+    console.error("Erro ao pesquisar transação:", error);
     res.status(500).send({ message: error.message });
   }
 };
 
+/* Função que retorna para o usuário todas as transações que estão na sua conta */
 export const pesUsuarioRota = async (req, res) => {
   try {
     const id = req.UsuarioId;
@@ -210,6 +263,7 @@ export const pesUsuarioRota = async (req, res) => {
   }
 };
 
+/* Função para o usuário atualizar os dados de dentro da transação que ele estiver manipulando */
 export const atualizarTrans = async (req, res) => {
   try {
     const {
@@ -234,6 +288,10 @@ export const atualizarTrans = async (req, res) => {
     if (!transacao) {
       return res.status(404).send({ mensagem: "Transação não encontrada" });
     }
+
+    /* if (transacao.Usuario._id.toString() !== req.UsuarioId) {
+            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
+        } */
 
     const camposAlterados = Object.keys(req.body).filter(
       (key) => req.body[key] !== transacao[key]
@@ -261,10 +319,11 @@ export const atualizarTrans = async (req, res) => {
 
     res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ mensagem: error.message });
   }
 };
 
+/* Função para deletar as transação */
 export const deletarTrans = async (req, res) => {
   try {
     const { id } = req.params;
