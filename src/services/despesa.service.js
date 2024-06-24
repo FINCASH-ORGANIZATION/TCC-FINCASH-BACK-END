@@ -1,4 +1,4 @@
-import despesa from "../models/despesa.js";
+import Despesa from "../models/despesa.js";
 import transacao from '../models/transacao.js';
 
 export const criarDespesaService = async (despesaData, options) => {
@@ -6,8 +6,17 @@ export const criarDespesaService = async (despesaData, options) => {
   return await novaDespesa.save(options);
 };
 
-// Função para buscar todas as despesas
-export const pesDespesaService = () => despesa.find().populate('Usuario');;
+// servicos/despesaService.js
+export const pesDespesaService = async (usuarioId) => {
+    try {
+      // Implementação da função pesDespesaService
+      // Exemplo: buscar despesas do usuário com base no ID
+      return await Despesa.find({ Usuario: usuarioId }).populate('Usuario').exec();
+    } catch (error) {
+      throw new Error('Erro ao buscar despesas do usuário: ' + error.message);
+    }
+  };
+  
 
 // Função para buscar uma despesa pelo seu Id
 export const pesDespesaIdService = (id) => despesa.findById(id).populate('Usuario');

@@ -1,10 +1,10 @@
 import {
   criarDespesaService,
-  pesDespesaService,
   pesDespesaIdService,
   despesaDescricaoService,
   atualizarDespesaService,
   deletarDespesaService,
+  pesDespesaService,
 } from "../services/despesa.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
@@ -16,27 +16,31 @@ export const criarDespesa = async (req, res) => {
   try {
     const { descricao, valor, data, categoria, contaId } = req.body; // Aqui estou assumindo que o ID da conta é enviado como 'contaId'
 
-    console.log('Dados recebidos:', req.body); // Log dos dados recebidos
+    console.log("Dados recebidos:", req.body); // Log dos dados recebidos
 
     if (!descricao || !valor || !data || !categoria || !contaId) {
-      return res.status(400).send({ mensagem: 'Por favor, preencha todos os campos!' });
+      return res
+        .status(400)
+        .send({ mensagem: "Por favor, preencha todos os campos!" });
     }
 
     const contaExistente = await Conta.findById(contaId);
     if (!contaExistente) {
-      return res.status(400).send({ mensagem: 'Conta não encontrada!' });
+      return res.status(400).send({ mensagem: "Conta não encontrada!" });
     }
 
-    console.log('Conta encontrada:', contaExistente); // Log da conta encontrada
+    console.log("Conta encontrada:", contaExistente); // Log da conta encontrada
 
     // Calcula o saldo atual do usuário
     const saldoAtual = await calcularSaldo(req.UsuarioId); // Certifique-se de que esta função está implementada corretamente
 
-    console.log('Saldo atual:', saldoAtual); // Log do saldo atual
+    console.log("Saldo atual:", saldoAtual); // Log do saldo atual
 
     // Verifica se o saldo atual é suficiente para a despesa
     if (saldoAtual < valor) {
-      return res.status(400).send({ mensagem: 'Saldo insuficiente para realizar a despesa!' });
+      return res
+        .status(400)
+        .send({ mensagem: "Saldo insuficiente para realizar a despesa!" });
     }
 
     // Cria a nova despesa
@@ -46,10 +50,10 @@ export const criarDespesa = async (req, res) => {
       data,
       categoria,
       conta: contaId,
-      usuario: req.UsuarioId
+      usuario: req.UsuarioId,
     });
 
-    console.log('Nova despesa criada:', novaDespesa); // Log da nova despesa criada
+    console.log("Nova despesa criada:", novaDespesa); // Log da nova despesa criada
 
     // Atualiza o saldo do usuário subtraindo o valor da despesa
     const novoSaldo = saldoAtual - valor;
@@ -59,11 +63,13 @@ export const criarDespesa = async (req, res) => {
       { new: true }
     );
 
-    console.log('Saldo atualizado:', novoSaldo); // Log do saldo atualizado
+    console.log("Saldo atualizado:", novoSaldo); // Log do saldo atualizado
 
-    res.status(200).send({ mensagem: 'Uma nova despesa foi feita!', despesa: novaDespesa });
+    res
+      .status(200)
+      .send({ mensagem: "Uma nova despesa foi feita!", despesa: novaDespesa });
   } catch (error) {
-    console.error('Erro ao criar despesa:', error); // Log de erro
+    console.error("Erro ao criar despesa:", error); // Log de erro
     res.status(500).send({ mensagem: error.message });
   }
 };
@@ -98,29 +104,39 @@ export const criarDespesa = async (req, res) => {
 }; */
 
 /* Função que retorna todas as despesas que estão na sua conta */
+
 export const pesDespesaRota = async (req, res) => {
   try {
-    const id = req.UsuarioId;
+    const usuarioId = req.UsuarioId;
 
-    const despesa = await pesDespesaService(id);
+    // Chama o serviço para obter todas as despesas do usuário, passando o ID do usuário
+    const despesas = await pesDespesaService(usuarioId);
 
-    res.send({
-      results: despesa.map((item) => ({
-        id: item._id,
-        descricao: item.descricao,
-        valor: item.valor,
-        data: item.data,
-        categoria: item.categoria,
-        conta: item.conta,
-        usuario: item.usuario ? item.usuario : "Usuário não encontrado!",
-      })),
-    });
+    // Verifica se encontrou despesas para o usuário
+    if (!despesas || despesas.length === 0) {
+      return res
+        .status(404)
+        .send({ message: "Nenhuma despesa encontrada para o usuário." });
+    }
+
+    // Formata as despesas para enviar na resposta
+    const resultadosFormatados = despesas.map((despesa) => ({
+      id: despesa._id,
+      descricao: despesa.descricao,
+      valor: despesa.valor,
+      data: despesa.data,
+      categoria: despesa.categoria,
+      conta: despesa.conta,
+      usuario: despesa.Usuario
+        ? despesa.Usuario.nome
+        : "Usuário não encontrado!", // Exemplo: supondo que o usuário tenha um campo 'nome'
+    }));
+
+    res.send({ results: resultadosFormatados });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 };
-
-/* Função que para pesquisar uma despesa pela seu Id */
 export const despesaId = async (req, res) => {
   try {
     const { id } = req.params;

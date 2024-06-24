@@ -1,17 +1,16 @@
 import {
-  criarReceitaService,
-  pesReceitaService,
   pesReceitaIdService,
   receitaDescricaoService,
   atualizarReceitaService,
   deletarReceitaService,
+  pesReceitasPorUsuarioIdService,
 } from "../services/receita.service.js";
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
 import Receita from "../models/receita.js";
 /* import { atualizarSaldo } from './saldo.controller.js'; */
 import Conta from "../models/conta.js";
-import {criartranService} from "../services/transacao.service.js"
+import { criartranService } from "../services/transacao.service.js";
 import mongoose from "mongoose";
 
 export const criarReceita = async (req, res) => {
@@ -20,7 +19,11 @@ export const criarReceita = async (req, res) => {
 
     // Verifique se todos os campos obrigatórios estão presentes
     if (!valor || !conta || conta === "") {
-      return res.status(400).send({ mensagem: "Por favor, preencha todos os campos obrigatórios!" });
+      return res
+        .status(400)
+        .send({
+          mensagem: "Por favor, preencha todos os campos obrigatórios!",
+        });
     }
 
     // Verificar se o usuário e a conta existem no banco de dados
@@ -40,7 +43,7 @@ export const criarReceita = async (req, res) => {
       data,
       categoria,
       usuario: req.UsuarioId, // Referenciando o ID do usuário
-      conta // Referenciando o ID da conta
+      conta, // Referenciando o ID da conta
     });
 
     await novaReceita.save();
@@ -53,20 +56,25 @@ export const criarReceita = async (req, res) => {
       tipoTransacao: "receita",
       categoria: novaReceita.categoria,
       conta: novaReceita.conta,
-      usuario: novaReceita.usuario
+      usuario: novaReceita.usuario,
     });
 
     // Calcular e atualizar o saldo do usuário
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Uma nova receita foi criada!", receita: novaReceita, transacao });
+    res
+      .status(200)
+      .send({
+        mensagem: "Uma nova receita foi criada!",
+        receita: novaReceita,
+        transacao,
+      });
   } catch (error) {
     console.error(error); // Adicionando log de erro para facilitar a depuração
     res.status(500).send({ message: error.message });
   }
 };
-
 
 /* export const criarReceita = async (req, res) => {
   try {
@@ -118,26 +126,29 @@ export const criarReceita = async (req, res) => {
 /* Função que retorna para o usuário todas as receitas que estão na sua conta */
 export const pesReceitaRota = async (req, res) => {
   try {
-    const id = req.UsuarioId;
+    const usuarioId = req.UsuarioId;
 
-    const receita = await pesReceitaService(id);
+    // Chama o serviço para obter todas as receitas do usuário, populando os usuários associados
+    const receitas = await pesReceitasPorUsuarioIdService(usuarioId);
 
-    res.send({
-      results: receita.map((item) => ({
-        id: item._id,
-        descricao: item.descricao,
-        valor: item.valor,
-        data: item.data,
-        categoria: item.categoria,
-        conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
+    // Formata as receitas para enviar na resposta
+    const resultadosFormatados = receitas.map((receita) => ({
+      id: receita._id,
+      descricao: receita.descricao,
+      valor: receita.valor,
+      data: receita.data,
+      categoria: receita.categoria,
+      conta: receita.conta,
+      usuario: receita.Usuario
+        ? receita.Usuario.nome
+        : "Usuário não encontrado!", // Exemplo: supondo que o usuário tenha um campo 'nome'
+    }));
+
+    res.send({ results: resultadosFormatados });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 };
-
 /* Função para pesquisar a receita pelo id */
 export const receitaId = async (req, res) => {
   try {
@@ -204,7 +215,7 @@ export const atualizarReceita = async (req, res) => {
 
     // Verifica se houve alterações nos campos
     const camposAlterados = Object.keys(req.body).filter(
-      key => req.body[key] !== receitaExistente[key]
+      (key) => req.body[key] !== receitaExistente[key]
     );
 
     // Se não houver alterações, retorna um erro

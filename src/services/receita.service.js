@@ -1,5 +1,16 @@
 import Receita from "../models/receita.js";
 
+
+export const pesReceitasPorUsuarioIdService = async (usuarioId) => {
+  try {
+    const receitas = await Receita.find({ Usuario: usuarioId }).populate('Usuario').exec();
+    return receitas;
+  } catch (error) {
+    throw new Error('Erro ao buscar receitas por usuário: ' + error.message);
+  }
+};
+
+
 export const criarReceitaService = (body) => Receita.create(body);
 
 // Função para buscar todas as Receitas
