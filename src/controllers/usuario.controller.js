@@ -94,9 +94,9 @@ export const pesUsuId = async (req, res) => {
 export const UsuUpdate = async (req, res) => {
   try {
     const { id, Usuario } = req;
-    const { nome, sobrenome, senha, email, avatar } = req.body;
+    const { nome, sobrenome, avatar } = req.body;
 
-    if (!nome && !sobrenome && !senha && !email && !avatar) {
+    if (!nome && !sobrenome && !avatar) {
       return res.status(400).json({
         mensagem: "Preencha pelo menos um campo para fazer a alteração!",
       });
@@ -105,16 +105,12 @@ export const UsuUpdate = async (req, res) => {
     const usuarioAtualizado = {
       nome: nome || Usuario.nome,
       sobrenome: sobrenome || Usuario.sobrenome,
-      senha: senha || Usuario.senha,
-      email: email || Usuario.email,
       avatar: avatar || Usuario.avatar,
     };
 
     if (
       usuarioAtualizado.nome === Usuario.nome &&
       usuarioAtualizado.sobrenome === Usuario.sobrenome &&
-      usuarioAtualizado.senha === Usuario.senha &&
-      usuarioAtualizado.email === Usuario.email &&
       usuarioAtualizado.avatar === Usuario.avatar
     ) {
       return res.status(400).json({
@@ -127,8 +123,6 @@ export const UsuUpdate = async (req, res) => {
       id,
       usuarioAtualizado.nome,
       usuarioAtualizado.sobrenome,
-      usuarioAtualizado.senha,
-      usuarioAtualizado.email,
       usuarioAtualizado.avatar
     );
 

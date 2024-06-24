@@ -15,6 +15,8 @@ import { Router } from "express";
 const rota = Router();
 
 rota.post("/", authMiddlewares, criarTransacaoRota, saldomiddleware);
+
+
 rota.get("/", pesTransacaoRota, saldomiddleware);
 //rota.get("/pesquisar", pesDescricaoRota);
 rota.get("/pesquisarId", authMiddlewares, pesDescricaoRotaId);
