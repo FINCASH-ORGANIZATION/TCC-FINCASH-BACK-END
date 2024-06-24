@@ -1,3 +1,21 @@
+
+import categoriaTransacao from "../models/categoriaTransacao.js";
+import {
+  criartranService,
+  pestraService,
+  contarTranService,
+  pesIDService,
+  pesqDescricaoService,
+  pesUsuarioService,
+  atualizarTransService,
+  deletarTransService,
+} from "../services/transacao.service.js";
+import { calcularSaldo } from "./saldo.controller.js";
+import Usuario from "../models/Usuario.js";
+import mongoose from "mongoose";
+import transacao from "../models/transacao.js";
+
+/* Função criar transação */
 export const criarTransacaoRota = async (req, res) => {
   try {
     const {
@@ -15,6 +33,7 @@ export const criarTransacaoRota = async (req, res) => {
       return res
         .status(400)
         .send({ mensagem: "Por favor, preencha todos os campos!" });
+      
     }
 
     const novaTransacao = await criartranService({
@@ -23,17 +42,20 @@ export const criarTransacaoRota = async (req, res) => {
       descricao,
       tipoTransacao,
       categoria,
+
       formaPagamento,
       conta,
       notas,
       Usuario: req.UsuarioId,
     });
 
+
     // Chame a função atualizarSaldo para atualizar o saldo do usuário
     await atualizarSaldo(req.UsuarioId);
 
     res.status(200).send({
       mensagem: "Uma nova transação foi feita!",
+
       transacao: novaTransacao,
     });
   } catch (error) {
@@ -57,6 +79,7 @@ export const pesTransacaoRota = async (req, res) => {
         .status(400)
         .send({ mensagem: "Não há transações registradas!" });
     }
+
 
     const avancar = offset + limit;
     const avancarURL =
@@ -123,17 +146,21 @@ export const pesquisaIDRota = async (req, res) => {
   }
 };
 
+
 export const pesDescricaoRota = async (req, res) => {
   try {
     const { descricao } = req.query;
 
+
     const transacao = await pesqDescricaoService(descricao);
+
 
     if (transacao.length === 0) {
       return res
         .status(400)
         .send({ mensagem: "Transação não localizada no servidor!" });
     }
+
 
     res.send({
       results: transacao.map((item) => ({
@@ -153,6 +180,7 @@ export const pesDescricaoRota = async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 };
+
 
 export const pesDescricaoRotaId = async (req, res) => {
   try {
@@ -239,6 +267,7 @@ export const atualizarTrans = async (req, res) => {
       (key) => req.body[key] !== transacao[key]
     );
 
+
     if (camposAlterados.length === 0) {
       return res.status(400).send({ mensagem: "Faça ao menos uma alteração!" });
     }
@@ -261,7 +290,9 @@ export const atualizarTrans = async (req, res) => {
 
     res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
   } catch (error) {
+
     res.status(500).send({ message: error.message });
+
   }
 };
 
