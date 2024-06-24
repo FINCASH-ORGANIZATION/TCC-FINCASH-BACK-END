@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const contaSchema = new mongoose.Schema({
+  saldo: {
+    type: Number,
+    default: 0,
+  },
   banco: {
     type: String,
     enum: [

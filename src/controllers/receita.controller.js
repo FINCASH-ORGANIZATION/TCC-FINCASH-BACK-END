@@ -12,7 +12,6 @@ export const criarReceita = async (req, res) => {
 
     const { valor, conta, categoria } = req.body;
 
-    // Verifica se os campos obrigatórios estão preenchidos
     if (!valor || !conta || !categoria || categoria === "") {
       console.log("Campos obrigatórios não preenchidos:", req.body);
       return res.status(400).send({
@@ -20,13 +19,6 @@ export const criarReceita = async (req, res) => {
           "Por favor, preencha todos os campos obrigatórios, incluindo a categoria!",
       });
     }
-
-    console.log("Dados da receita a ser criada:", {
-      valor,
-      conta,
-      categoria,
-      Usuario: req.UsuarioId,
-    });
 
     const usuarioExistente = await Usuario.findById(req.UsuarioId);
     if (!usuarioExistente) {
@@ -52,11 +44,7 @@ export const criarReceita = async (req, res) => {
       Usuario: req.UsuarioId,
     });
 
-    console.log("Nova receita criada:", novaReceita);
-
     const receitaSalva = await novaReceita.save();
-
-    console.log("Receita salva no banco de dados:", receitaSalva);
 
     const transacao = await criartranService({
       valor: receitaSalva.valor,
@@ -67,8 +55,6 @@ export const criarReceita = async (req, res) => {
       conta: receitaSalva.conta,
       Usuario: receitaSalva.Usuario,
     });
-
-    console.log("Transação criada com sucesso:", transacao);
 
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });

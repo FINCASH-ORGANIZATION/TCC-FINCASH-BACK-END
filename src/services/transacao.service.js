@@ -1,6 +1,6 @@
 import transacao from "../models/transacao.js";
-import categoriaTransacao from "../models/categoriaTransacao.js";
 import mongoose from "mongoose";
+import moment from "moment"; // Importa a biblioteca moment
 
 export const criartranService = async (dadosTransacao) => {
   try {
@@ -11,22 +11,20 @@ export const criartranService = async (dadosTransacao) => {
       throw new Error("Categoria é um campo obrigatório para criar uma transação.");
     }
 
-    // Busca a categoriaTransacao pelo tipo
-    const categoria = await categoriaTransacao.findOne({ tipo: dadosTransacao.categoria });
-    if (!categoria) {
-      throw new Error(`Categoria não encontrada para o tipo: ${dadosTransacao.categoria}`);
+    // Converte a data para o formato correto
+    if (dadosTransacao.data) {
+      dadosTransacao.data = moment(dadosTransacao.data, "DD/MM/YYYY").toDate();
     }
-    const categoriaId = categoria._id;
 
     // Cria uma nova transação usando o modelo Transacao
-    const transacao = new Transacao({
+    const novaTransacao = new transacao({
       ...dadosTransacao,
-      categoria: categoriaId, // Passa o ObjectId da categoriaTransacao
+      Usuario: dadosTransacao.Usuario, // Passa o ID do usuário
     });
-    console.log("Transação antes de salvar:", transacao);
+    console.log("Transação antes de salvar:", novaTransacao);
 
     // Salva a transação no banco de dados
-    const resultado = await transacao.save();
+    const resultado = await novaTransacao.save();
     console.log("Resultado do salvamento:", resultado);
 
     return resultado;
@@ -43,22 +41,22 @@ export const criartranService = async (dadosTransacao) => {
 
 export const pestraService = (limit, offset) => {
   console.log("Pesquisando transações com limit:", limit, "e offset:", offset);
-  return Transacao.find()
+  return transacao.find()
     .sort({ _id: -1 })
     .skip(offset)
     .limit(limit)
-    .populate("categoria")
+    .populate("conta")
     .populate("Usuario");
 };
 
 export const contarTranService = () => {
   console.log("Contando transações...");
-  return Transacao.countDocuments();
+  return transacao.countDocuments();
 };
 
 export const pesIDService = (id) => {
   console.log("Pesquisando transação por ID:", id);
-  return Transacao.findById(id).populate("categoria").populate("Usuario");
+  return transacao.findById(id).populate("conta").populate("Usuario");
 };
 
 export const pesqDescricaoService = (descricao, UsuarioId) => {
@@ -68,26 +66,26 @@ export const pesqDescricaoService = (descricao, UsuarioId) => {
     "e Usuário ID:",
     UsuarioId
   );
-  return Transacao.find({
+  return transacao.find({
     descricao: { $regex: `${descricao || ""}`, $options: "i" },
     Usuario: UsuarioId,
   })
     .sort({ _id: -1 })
-    .populate("categoria")
+    .populate("conta")
     .populate("Usuario");
 };
 
 export const pesUsuarioService = (id) => {
   console.log("Pesquisando transações por Usuário ID:", id);
-  return Transacao.find({ Usuario: id })
+  return transacao.find({ Usuario: id })
     .sort({ _id: -1 })
-    .populate("categoria")
+    .populate("conta")
     .populate("Usuario");
 };
 
 export const atualizarTransService = (id, atualizacao) => {
   console.log("Atualizando transação com ID:", id, "e dados:", atualizacao);
-  return Transacao.findOneAndUpdate(
+  return transacao.findOneAndUpdate(
     { _id: id },
     { ...atualizacao },
     { rawResult: true }
@@ -96,5 +94,5 @@ export const atualizarTransService = (id, atualizacao) => {
 
 export const deletarTransService = (id) => {
   console.log("Deletando transação com ID:", id);
-  return Transacao.findOneAndDelete({ _id: id });
+  return transacao.findOneAndDelete({ _id: id });
 };

@@ -20,10 +20,20 @@ const transacaoSchema = new mongoose.Schema({
     required: true,
   },
   categoria: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "categoriaTransacao",
-    required: true,
-  },
+    type: String,
+        enum: [
+            'Salário',
+            'Alimentação',
+            'Transporte',
+            'Saúde',
+            'Educação',
+            'Lazer e entretenimento',
+            'Viagens',
+            'Emergências',
+            'Outros'
+        ],
+        required: true,
+    },
   conta: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conta",

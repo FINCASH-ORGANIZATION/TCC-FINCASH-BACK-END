@@ -16,58 +16,45 @@ import transacao from "../models/transacao.js";
 
 /* Função criar transação */
 export const criarTransacaoRota = async (req, res) => {
-    try {
-        const { valor, data, descricao, tipoTransacao, categoria, formaPagamento, conta, notas, categoriaPersonalizada } = req.body;
+  try {
+    const {
+      valor,
+      data,
+      descricao,
+      tipoTransacao,
+      categoria,
+      formaPagamento,
+      conta,
+      notas,
+    } = req.body;
 
-        if (!valor || !data || !tipoTransacao || !categoria || !conta) {
-            return res.status(400).send({ mensagem: "Por favor, preencha todos os campos!" });
-        }
-
-        let categoriaObj;
-
-        if (categoria === 'Outros' && categoriaPersonalizada) {
-            categoriaObj = new categoriaTransacao({
-                tipo: categoria,
-                categoriaPersonalizada,
-                Usuario: req.UsuarioId
-            });
-
-            await categoriaObj.save();
-        } else {
-            categoriaObj = await categoriaTransacao.findOne({ tipo: categoria });
-
-      if (!categoriaObj) {
-        console.log("Categoria não encontrada:", categoria);  // Adicionando log
-        return res.status(400).send({ mensagem: "Categoria inválida!" });
-      }
+    if (!valor || !data || !tipoTransacao || !categoria || !conta) {
+      return res
+        .status(400)
+        .send({ mensagem: "Por favor, preencha todos os campos!" });
     }
-
-    console.log("Categoria encontrada:", categoriaObj);  // Adicionando log
 
     const novaTransacao = await criartranService({
       valor,
       data,
       descricao,
       tipoTransacao,
-      categoria: categoriaObj._id,
-      categoriaPersonalizada,
+      categoria,
       formaPagamento,
       conta,
       notas,
       Usuario: req.UsuarioId,
     });
 
-    console.log("Transação criada com sucesso:", novaTransacao);  // Adicionando log
-
-        const saldo = await calcularSaldo(req.UsuarioId);
-        await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
+    const saldo = await calcularSaldo(req.UsuarioId);
+    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
     res.status(200).send({
       mensagem: "Uma Nova transação foi feita!",
       transacao: novaTransacao,
     });
   } catch (error) {
-    console.error("Erro ao criar transação:", error.message);  // Adicionando log
+    console.error("Erro ao criar transação:", error.message);
     res.status(500).send({ message: error.message });
   }
 };
