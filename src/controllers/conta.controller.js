@@ -28,12 +28,10 @@ export const criarConta = async (req, res) => {
       "Inter",
     ];
     if (!bancosValidos.includes(banco)) {
-      return res
-        .status(400)
-        .send({
-          mensagem:
-            "Banco inválido! Escolha entre: Banco do Brasil, Caixa, Itau, Santander, Nubank, Bradesco e Inter.",
-        });
+      return res.status(400).send({
+        mensagem:
+          "Banco inválido! Escolha entre: Banco do Brasil, Caixa, Itau, Santander, Nubank, Bradesco e Inter.",
+      });
     }
 
     // Verificar se o usuário existe no banco de dados
@@ -47,14 +45,11 @@ export const criarConta = async (req, res) => {
       Usuario: req.UsuarioId,
     });
 
-    res
-      .status(201)
-      .send({
-        mensagem: "Conta do banco criada com sucesso!",
-        conta: novaConta,
-      });
+    res.status(201).send({
+      mensagem: "Conta do banco criada com sucesso!",
+      conta: novaConta,
+    });
   } catch (error) {
-    console.error("Erro ao criar conta do banco:", error);
     res.status(500).send({ mensagem: error.message });
   }
 };

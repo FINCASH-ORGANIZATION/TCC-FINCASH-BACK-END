@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 
 const despesaSchema = new mongoose.Schema({
-  descricao: {
-    type: String,
-    required: true,
-  },
   valor: {
     type: Number,
     required: true,
+  },
+  descricao: {
+    type: String,
+    required: false,
   },
   data: {
     type: Date,
@@ -18,18 +18,18 @@ const despesaSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  Usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Usuario",
+    required: true,
+  },
   conta: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conta",
     required: true,
   },
-  usuario: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Usuario",
-    required: true,
-  },
 });
 
-const despesa = mongoose.model("despesa", despesaSchema);
+const Despesa = mongoose.model("Despesa", despesaSchema);
 
-export default despesa;
+export default Despesa;

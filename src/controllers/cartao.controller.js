@@ -28,12 +28,10 @@ export const criarCartao = async (req, res) => {
       Usuario: req.UsuarioId,
     });
 
-    res
-      .status(201)
-      .send({
-        mensagem: "Cartão de crédito adicionado com sucesso!",
-        cartao: novoCartao,
-      });
+    res.status(201).send({
+      mensagem: "Cartão de crédito adicionado com sucesso!",
+      cartao: novoCartao,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

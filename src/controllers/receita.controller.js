@@ -1,6 +1,10 @@
 import { calcularSaldo } from "./saldo.controller.js";
 import { criartranService } from "../services/transacao.service.js";
-import { criarReceitaService, pesReceitaService, deletarReceitaService } from "../services/receita.service.js";
+import {
+  criarReceitaService,
+  pesReceitaService,
+  deletarReceitaService,
+} from "../services/receita.service.js";
 import Usuario from "../models/Usuario.js";
 import Receita from "../models/receita.js";
 import Conta from "../models/conta.js";
@@ -8,12 +12,9 @@ import mongoose from "mongoose";
 
 export const criarReceita = async (req, res) => {
   try {
-    console.log("Requisição recebida para criar uma nova receita:", req.body);
-
     const { valor, conta, categoria } = req.body;
 
     if (!valor || !conta || !categoria || categoria === "") {
-      console.log("Campos obrigatórios não preenchidos:", req.body);
       return res.status(400).send({
         mensagem:
           "Por favor, preencha todos os campos obrigatórios, incluindo a categoria!",
@@ -22,18 +23,15 @@ export const criarReceita = async (req, res) => {
 
     const usuarioExistente = await Usuario.findById(req.UsuarioId);
     if (!usuarioExistente) {
-      console.log("Usuário não encontrado com ID:", req.UsuarioId);
       return res.status(404).send({ mensagem: "Usuário não encontrado!" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(conta)) {
-      console.log("ID da conta inválido:", conta);
       return res.status(400).send({ mensagem: "ID da conta inválido!" });
     }
 
     const contaExistente = await Conta.findById(conta);
     if (!contaExistente) {
-      console.log("Conta não encontrada com ID:", conta);
       return res.status(404).send({ mensagem: "Conta não encontrada!" });
     }
 
@@ -65,7 +63,6 @@ export const criarReceita = async (req, res) => {
       transacao,
     });
   } catch (error) {
-    console.error("Erro ao criar receita:", error.message);
     if (error instanceof mongoose.Error.ValidationError) {
       return res.status(400).send({ mensagem: error.message });
     }
@@ -75,11 +72,7 @@ export const criarReceita = async (req, res) => {
 
 export const pesReceitaRota = async (req, res) => {
   try {
-    console.log("Pesquisando receitas do usuário com ID:", req.UsuarioId);
-
     const receita = await pesReceitaService(req.UsuarioId);
-
-    console.log("Receitas encontradas:", receita);
 
     res.send({
       results: receita.map((item) => ({
@@ -93,7 +86,6 @@ export const pesReceitaRota = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error("Erro ao pesquisar receitas:", error.message);
     res.status(500).send({ message: "Erro ao processar a requisição." });
   }
 };
@@ -102,19 +94,15 @@ export const deletarReceita = async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("Recebida solicitação para deletar receita com ID:", id);
-
     const objectId = mongoose.Types.ObjectId.isValid(id)
       ? new mongoose.Types.ObjectId(id)
       : null;
     if (!objectId) {
-      console.log("ID da receita inválido:", id);
       return res.status(400).send({ mensagem: "Id da Receita inválido" });
     }
 
     const receita = await deletarReceitaService(objectId);
     if (!receita) {
-      console.log("Receita não encontrada com ID:", id);
       return res.status(404).send({ mensagem: "Receita não encontrada" });
     }
 
@@ -130,11 +118,8 @@ export const deletarReceita = async (req, res) => {
 
     await deletarReceitaService(objectId);
 
-    console.log("Receita deletada com sucesso:", receita);
-
     res.status(200).send({ mensagem: "Receita deletada com sucesso!" });
   } catch (error) {
-    console.error("Erro ao deletar receita:", error.message);
     if (error instanceof mongoose.Error.CastError) {
       return res.status(400).send({ mensagem: "Id da Receita inválido" });
     }
