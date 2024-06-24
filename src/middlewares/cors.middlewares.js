@@ -5,4 +5,3 @@ export default cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     headers: ['Content-Type', 'Authorization']
 });
-

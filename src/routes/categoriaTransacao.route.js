@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-  pesCategoriasRota,
-  pesCategoriaPorIdRota,
-} from "../controllers/categoriaTransacao.controller.js";
+import { pesCategoriasRota, pesCategoriaPorIdRota } from "../controllers/categoriaTransacao.controller.js";
 
 const rota = Router();
 
