@@ -1,108 +1,78 @@
+import { calcularSaldo } from "./saldo.controller.js";
+import { criartranService } from "../services/transacao.service.js";
 import {
   criarDespesaService,
   pesDespesaService,
-  pesDespesaIdService,
-  despesaDescricaoService,
-  atualizarDespesaService,
   deletarDespesaService,
 } from "../services/despesa.service.js";
-import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
+import Despesa from "../models/despesa.js";
 import Conta from "../models/conta.js";
 import mongoose from "mongoose";
 
-// Função para criar despesa
 export const criarDespesa = async (req, res) => {
   try {
-    const { descricao, valor, data, categoria, contaId } = req.body; // Aqui estou assumindo que o ID da conta é enviado como 'contaId'
+    const { valor, conta, categoria } = req.body;
 
-    console.log('Dados recebidos:', req.body); // Log dos dados recebidos
-
-    if (!descricao || !valor || !data || !categoria || !contaId) {
-      return res.status(400).send({ mensagem: 'Por favor, preencha todos os campos!' });
+    if (!valor || !conta || !categoria || categoria === "") {
+      return res.status(400).send({
+        mensagem:
+          "Por favor, preencha todos os campos obrigatórios, incluindo a categoria!",
+      });
     }
 
-    const contaExistente = await Conta.findById(contaId);
+    const usuarioExistente = await Usuario.findById(req.UsuarioId);
+    if (!usuarioExistente) {
+      return res.status(404).send({ mensagem: "Usuário não encontrado!" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(conta)) {
+      return res.status(400).send({ mensagem: "ID da conta inválido!" });
+    }
+
+    const contaExistente = await Conta.findById(conta);
     if (!contaExistente) {
-      return res.status(400).send({ mensagem: 'Conta não encontrada!' });
+      return res.status(404).send({ mensagem: "Conta não encontrada!" });
     }
 
-    console.log('Conta encontrada:', contaExistente); // Log da conta encontrada
-
-    // Calcula o saldo atual do usuário
-    const saldoAtual = await calcularSaldo(req.UsuarioId); // Certifique-se de que esta função está implementada corretamente
-
-    console.log('Saldo atual:', saldoAtual); // Log do saldo atual
-
-    // Verifica se o saldo atual é suficiente para a despesa
-    if (saldoAtual < valor) {
-      return res.status(400).send({ mensagem: 'Saldo insuficiente para realizar a despesa!' });
-    }
-
-    // Cria a nova despesa
-    const novaDespesa = await criarDespesaService({
-      descricao,
+    const novaDespesa = new Despesa({
       valor,
-      data,
-      categoria,
-      conta: contaId,
-      usuario: req.UsuarioId
-    });
-
-    console.log('Nova despesa criada:', novaDespesa); // Log da nova despesa criada
-
-    // Atualiza o saldo do usuário subtraindo o valor da despesa
-    const novoSaldo = saldoAtual - valor;
-    await Usuario.findOneAndUpdate(
-      { _id: req.UsuarioId },
-      { $set: { saldo: novoSaldo } },
-      { new: true }
-    );
-
-    console.log('Saldo atualizado:', novoSaldo); // Log do saldo atualizado
-
-    res.status(200).send({ mensagem: 'Uma nova despesa foi feita!', despesa: novaDespesa });
-  } catch (error) {
-    console.error('Erro ao criar despesa:', error); // Log de erro
-    res.status(500).send({ mensagem: error.message });
-  }
-};
-
-/* Função criar despesa */
-/* export const criarDespesa = async (req, res) => {
-  try {
-    const { descricao, valor, data, categoria, conta } = req.body;
-
-    if (!descricao || !valor || !data || !categoria || !conta) {
-      return res
-        .status(400)
-        .send({ mensagem: "Por favor, preencha todos os campos!" });
-    }
-
-    const novaDespesa = await criarDespesaService({
-      descricao,
-      valor,
-      data,
       categoria,
       conta,
       Usuario: req.UsuarioId,
     });
 
+    const despesaSalva = await novaDespesa.save();
+
+    const transacao = await criartranService({
+      valor: despesaSalva.valor,
+      data: despesaSalva.data,
+      descricao: despesaSalva.descricao,
+      tipoTransacao: "Despesa",
+      categoria: despesaSalva.categoria,
+      conta: despesaSalva.conta,
+      Usuario: despesaSalva.Usuario,
+    });
+
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res.status(200).send({ mensagem: "Uma Nova despesa foi feita!", despesa: novaDespesa });
+    res.status(200).send({
+      mensagem: "Uma nova despesa foi criada!",
+      despesa: despesaSalva,
+      transacao,
+    });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    if (error instanceof mongoose.Error.ValidationError) {
+      return res.status(400).send({ mensagem: error.message });
+    }
+    res.status(500).send({ message: "Erro ao processar a requisição." });
   }
-}; */
+};
 
-/* Função que retorna todas as despesas que estão na sua conta */
 export const pesDespesaRota = async (req, res) => {
   try {
-    const id = req.UsuarioId;
-
-    const despesa = await pesDespesaService(id);
+    const despesa = await pesDespesaService(req.UsuarioId);
 
     res.send({
       results: despesa.map((item) => ({
@@ -112,104 +82,14 @@ export const pesDespesaRota = async (req, res) => {
         data: item.data,
         categoria: item.categoria,
         conta: item.conta,
-        usuario: item.usuario ? item.usuario : "Usuário não encontrado!",
+        Usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
       })),
     });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ message: "Erro ao processar a requisição." });
   }
 };
 
-/* Função que para pesquisar uma despesa pela seu Id */
-export const despesaId = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const despesa = await pesDespesaIdService(id);
-    if (!despesa) {
-      return res.status(404).send({ mensagem: "Despesa não encontrada" });
-    }
-
-    res.send({
-      id: despesa._id,
-      descricao: despesa.descricao,
-      valor: despesa.valor,
-      data: despesa.data,
-      categoria: despesa.categoria,
-      conta: despesa.conta,
-      usuario: despesa.Usuario ? despesa.Usuario : "Usuário não encontrado!",
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-export const despesaDescricaoRota = async (req, res) => {
-  try {
-    const { descricao } = req.query;
-
-    const despesa = await despesaDescricaoService(descricao);
-
-    if (despesa.length === 0) {
-      return res.status(400).send({ mensagem: "Despesa não encontrada" });
-    }
-
-    res.send({
-      results: despesa.map((item) => ({
-        id: item._id,
-        descricao: item.descricao,
-        valor: item.valor,
-        data: item.data,
-        categoria: item.categoria,
-        conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-/* Função para o usuário atualizar os dados de dentro da despesa que ele estiver manipulando */
-export const atualizarDespesa = async (req, res) => {
-  try {
-    const { descricao, valor, data, categoria, conta } = req.body;
-    const { id } = req.params;
-
-    // Busca a despesa pelo ID
-    const despesaExistente = await pesDespesaIdService(id);
-
-    // Verifica se a despesa existe
-    if (!despesaExistente) {
-      return res.status(404).send({ mensagem: "Despesa não encontrada" });
-    }
-
-    // Verifica se houve alterações nos campos
-    const camposAlterados = Object.keys(req.body).filter(
-      (key) => req.body[key] !== despesaExistente[key]
-    );
-
-    // Se não houver alterações, retorna um erro
-    if (camposAlterados.length === 0) {
-      return res.status(400).send({ mensagem: "Faça ao menos uma alteração!" });
-    }
-
-    // Atualiza a despesa com os novos valores
-    await atualizarDespesaService(id, descricao, valor, data, categoria, conta);
-
-    // Recalcula o saldo após a atualização da despesa
-    const saldoAtualizado = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo: saldoAtualizado });
-
-    // Retorna uma mensagem de sucesso
-    res.status(200).send({ mensagem: "Despesa atualizada com sucesso!" });
-  } catch (error) {
-    // Trata os erros
-    res.status(500).send({ mensagem: error.message });
-  }
-};
-
-/* Função para deletar as despesa */
 export const deletarDespesa = async (req, res) => {
   try {
     const { id } = req.params;
@@ -218,7 +98,7 @@ export const deletarDespesa = async (req, res) => {
       ? new mongoose.Types.ObjectId(id)
       : null;
     if (!objectId) {
-      return res.status(400).send({ mensagem: "Id da despesa inválido" });
+      return res.status(400).send({ mensagem: "Id da Despesa inválido" });
     }
 
     const despesa = await deletarDespesaService(objectId);
@@ -226,7 +106,11 @@ export const deletarDespesa = async (req, res) => {
       return res.status(404).send({ mensagem: "despesa não encontrada" });
     }
 
-    if (despesa.Usuario._id.toString() != req.UsuarioId) {
+    if (despesa.Usuario._id.toString() !== req.UsuarioId) {
+      console.log(
+        "Usuário não tem permissão para deletar esta despesa:",
+        req.UsuarioId
+      );
       return res.status(403).send({
         mensagem: "Você não tem permissão para deletar essa despesa",
       });
@@ -236,6 +120,9 @@ export const deletarDespesa = async (req, res) => {
 
     res.status(200).send({ mensagem: "Despesa deletada com sucesso!" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    if (error instanceof mongoose.Error.CastError) {
+      return res.status(400).send({ mensagem: "Id da Despesa inválido" });
+    }
+    res.status(500).send({ message: "Erro ao processar a requisição." });
   }
 };

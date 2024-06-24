@@ -1,34 +1,35 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const despesaSchema = new mongoose.Schema({
-  descricao: {
-    type: String,
-    required: true
-  },
   valor: {
     type: Number,
-    required: true
-  },  
+    required: true,
+  },
+  descricao: {
+    type: String,
+    required: false,
+  },
   data: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    get: v => `${v.getDate()}/${v.getMonth() + 1}/${v.getFullYear()}`
   },
   categoria: {
     type: String,
-    required: true
+    required: true,
+  },
+  Usuario: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Usuario",
+    required: true,
   },
   conta: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Conta',
-    required: true
+    ref: "Conta",
+    required: true,
   },
-  usuario: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Usuario',
-    required: true
-  }
 });
 
-const despesa = mongoose.model("despesa", despesaSchema);
+const Despesa = mongoose.model("Despesa", despesaSchema);
 
-export default despesa;
+export default Despesa;

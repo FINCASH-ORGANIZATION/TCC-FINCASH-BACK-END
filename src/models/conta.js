@@ -1,9 +1,21 @@
 import mongoose from "mongoose";
 
 const contaSchema = new mongoose.Schema({
+  saldo: {
+    type: Number,
+    default: 0,
+  },
   banco: {
     type: String,
-    enum: ["Banco do Brasil", "Caixa", "Itau", "Santander", "Nubank", "Bradesco", "Inter"],
+    enum: [
+      "Banco do Brasil",
+      "Caixa",
+      "Itau",
+      "Santander",
+      "Nubank",
+      "Bradesco",
+      "Inter",
+    ],
     required: true,
   },
   Usuario: {

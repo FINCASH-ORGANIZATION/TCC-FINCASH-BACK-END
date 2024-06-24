@@ -25,8 +25,6 @@ export const esqueceuSenha = async (req, res) => {
 
     await usuario.save();
 
-    console.log(senhatoken, tempoExpiracao);
-
     mailer.sendMail(
       {
         from: "Fin Cash <noreplyfincash@gmail.com>",
@@ -36,7 +34,6 @@ export const esqueceuSenha = async (req, res) => {
       },
       (error) => {
         if (error) {
-          console.log(error);
           return res
             .status(400)
             .send({ Mensagem: "Não foi possível alterar a senha por email!" });
@@ -63,9 +60,6 @@ export const atualizarSenha = async (req, res) => {
     if (!usuario) {
       return res.status(404).send({ Mensagem: "Usuario incorreto" });
     }
-
-    console.log("Token recebido:", senhatoken);
-    console.log("Token armazenado:", usuario.resetTokenSenha);
 
     if (senhatoken !== usuario.resetTokenSenha)
       return res.status(400).send({ Mensagem: "Token inválido" });
