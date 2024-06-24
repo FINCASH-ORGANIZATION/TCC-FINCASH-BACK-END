@@ -19,7 +19,7 @@ import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 rota.post("/", criarUsu);
 rota.get("/", pesUsu);
 rota.get("/pes", authMiddlewares, pesUsuId);
-rota.patch("/:id", validacaoId, validacaoUsuario, UsuUpdate);
+rota.patch("/:id", authMiddlewares, validacaoId, validacaoUsuario, UsuUpdate);
 rota.delete("/:id", validacaoId, validacaoUsuario, deletarUsu);
 
 //  Exporta a variavel rota que irá ser chamada pelo controller.
