@@ -1,10 +1,10 @@
 import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import { Router } from "express";
 import {
-    pesContaRota,
-    pesContaIdRota,
-    criarConta,
-    deletarConta,
+  pesContaRota,
+  pesContaIdRota,
+  criarConta,
+  deletarConta,
 } from "../controllers/conta.controller.js";
 
 const rota = Router();

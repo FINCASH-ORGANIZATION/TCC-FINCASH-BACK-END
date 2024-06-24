@@ -4,12 +4,16 @@ import Usuario from "../models/Usuario.js";
 export const calcularSaldo = async (UsuarioId) => {
   try {
     console.log(`Buscando transações para usuário ${UsuarioId}`);
-    const transacoes = await Transacao.find({ usuario: UsuarioId }).populate('usuario');
+    const transacoes = await Transacao.find({ usuario: UsuarioId }).populate(
+      "usuario"
+    );
     console.log(`Transações encontradas: ${transacoes.length}`);
 
     let saldo = 0;
     transacoes.forEach((transacao) => {
-      console.log(`Processando transação ${transacao.tipoTransacao} de valor ${transacao.valor}`);
+      console.log(
+        `Processando transação ${transacao.tipoTransacao} de valor ${transacao.valor}`
+      );
       if (transacao.tipoTransacao === "Receita") {
         console.log(`Adicionando valor de receita: ${transacao.valor}`);
         saldo += transacao.valor;

@@ -36,31 +36,40 @@ export const criarTransacaoRota = async (req, res) => {
         } else {
             categoriaObj = await categoriaTransacao.findOne({ tipo: categoria });
 
-            if (!categoriaObj) {
-                return res.status(400).send({ mensagem: "Categoria inválida!" });
-            }
-        }
+      if (!categoriaObj) {
+        console.log("Categoria não encontrada:", categoria);  // Adicionando log
+        return res.status(400).send({ mensagem: "Categoria inválida!" });
+      }
+    }
 
-        const novaTransacao = await criartranService({
-            valor,
-            data,
-            descricao,
-            tipoTransacao,
-            categoria: categoriaObj._id,
-            categoriaPersonalizada,
-            formaPagamento,
-            conta,
-            notas,
-            Usuario: req.UsuarioId,
-        });
+    console.log("Categoria encontrada:", categoriaObj);  // Adicionando log
+
+    const novaTransacao = await criartranService({
+      valor,
+      data,
+      descricao,
+      tipoTransacao,
+      categoria: categoriaObj._id,
+      categoriaPersonalizada,
+      formaPagamento,
+      conta,
+      notas,
+      Usuario: req.UsuarioId,
+    });
+
+    console.log("Transação criada com sucesso:", novaTransacao);  // Adicionando log
 
         const saldo = await calcularSaldo(req.UsuarioId);
         await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-        res.status(200).send({ mensagem: "Uma Nova transação foi feita!", transacao: novaTransacao });
-    } catch (error) {
-        res.status(500).send({ message: error.message });
-    }
+    res.status(200).send({
+      mensagem: "Uma Nova transação foi feita!",
+      transacao: novaTransacao,
+    });
+  } catch (error) {
+    console.error("Erro ao criar transação:", error.message);  // Adicionando log
+    res.status(500).send({ message: error.message });
+  }
 };
 
 /* Função que retorna todas as transações cadastradas no banco de dados de todos os usuários */

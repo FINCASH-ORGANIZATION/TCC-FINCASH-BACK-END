@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { esqueceuSenha, atualizarSenha } from "../controllers/esqueceu_senha.controller.js";
+import {
+  esqueceuSenha,
+  atualizarSenha,
+} from "../controllers/esqueceu_senha.controller.js";
 
 const rota = Router();
 

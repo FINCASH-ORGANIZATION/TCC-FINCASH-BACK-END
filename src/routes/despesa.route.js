@@ -1,12 +1,12 @@
 import { authMiddlewares } from "../middlewares/auth.middlewares.js";
 import { Router } from "express";
 import {
-    pesDespesaRota,
-    despesaId,
-    despesaDescricaoRota,
-    criarDespesa,
-    atualizarDespesa,
-    deletarDespesa,
+  pesDespesaRota,
+  despesaId,
+  despesaDescricaoRota,
+  criarDespesa,
+  atualizarDespesa,
+  deletarDespesa,
 } from "../controllers/despesa.controller.js";
 
 const rota = Router();
