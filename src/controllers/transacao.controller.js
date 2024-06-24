@@ -1,296 +1,162 @@
-export const criarTransacaoRota = async (req, res) => {
+import transacao from "../models/transacao.js";
+import Conta from "../models/conta.js"; // Certifique-se de importar o modelo de conta
+import mongoose from "mongoose";
+import moment from "moment"; // Importa a biblioteca moment
+
+export const criartranService = async (dadosTransacao) => {
   try {
-    const {
-      valor,
-      data,
+    const session = await mongoose.startSession();
+
+    session.startTransaction();
+
+    // Verifica se a categoria está presente nos dados da transação
+    if (!dadosTransacao.categoria) {
+      throw new Error(
+        "Categoria é um campo obrigatório para criar uma transação."
+      );
+    }
+
+    // Converte a data para o formato correto
+    if (dadosTransacao.data) {
+      dadosTransacao.data = moment(dadosTransacao.data, "DD/MM/YYYY").toDate();
+    }
+
+    // Cria uma nova transação usando o modelo Transacao
+    const novaTransacao = new transacao({
+      ...dadosTransacao,
+      Usuario: dadosTransacao.Usuario, // Passa o ID do usuário
+    });
+
+    // Salva a transação no banco de dados
+    const resultado = await novaTransacao.save({ session });
+
+    // Atualiza o saldo da conta
+    const conta = await Conta.findById(dadosTransacao.conta).session(session);
+    if (!conta) {
+      throw new Error("Conta não encontrada");
+    }
+
+    if (dadosTransacao.tipoTransacao === "Receita") {
+      conta.saldo += dadosTransacao.valor;
+    } else if (dadosTransacao.tipoTransacao === "Despesa") {
+      conta.saldo -= dadosTransacao.valor;
+    }
+
+    await conta.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return resultado;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    if (error instanceof mongoose.Error.ValidationError) {
+      throw new Error(error.message);
+    } else if (error instanceof mongoose.Error.CastError) {
+      throw new Error("Id da categoria ou da conta inválido");
+    }
+    throw new Error("Erro ao processar a requisição.");
+  }
+};
+
+export const pestraService = async (limit, offset) => {
+  try {
+    const resultado = await transacao
+      .find()
+      .sort({ _id: -1 })
+      .skip(offset)
+      .limit(limit)
+      .populate("conta")
+      .populate("Usuario");
+
+    return resultado;
+  } catch (error) {
+    throw new Error("Erro ao processar a requisição.");
+  }
+};
+
+export const contarTranService = async () => {
+  try {
+    const resultado = await transacao.countDocuments();
+
+    return resultado;
+  } catch (error) {
+    throw new Error("Erro ao processar a requisição.");
+  }
+};
+
+export const pesIDService = async (id) => {
+  try {
+    const resultado = await transacao
+      .findById(id)
+      .populate("conta")
+      .populate("Usuario");
+
+    return resultado;
+  } catch (error) {
+    throw new Error("Erro ao processar a requisição.");
+  }
+};
+
+export const pesqDescricaoService = async (descricao, UsuarioId) => {
+  try {
+    console.log(
+      "\x1b[31mPesquisando transações por descrição:\x1b[0m",
       descricao,
-      tipoTransacao,
-      categoria,
-      formaPagamento,
-      conta,
-      notas,
-    } = req.body;
+      "e Usuário ID:",
+      UsuarioId
+    );
+    const resultado = await transacao
+      .find({
+        descricao: { $regex: `${descricao || ""}`, $options: "i" },
+        Usuario: UsuarioId,
+      })
+      .sort({ _id: -1 })
+      .populate("conta")
+      .populate("Usuario");
 
-    if (!valor || !data || !tipoTransacao || !categoria || !conta) {
-      return res
-        .status(400)
-        .send({ mensagem: "Por favor, preencha todos os campos!" });
-    }
-
-    const novaTransacao = await criartranService({
-      valor,
-      data,
-      descricao,
-      tipoTransacao,
-      categoria,
-      formaPagamento,
-      conta,
-      notas,
-      Usuario: req.UsuarioId,
-    });
-
-    // Chame a função atualizarSaldo para atualizar o saldo do usuário
-    await atualizarSaldo(req.UsuarioId);
-
-    res.status(200).send({
-      mensagem: "Uma nova transação foi feita!",
-      transacao: novaTransacao,
-    });
+    return resultado;
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    throw new Error("Erro ao processar a requisição.");
   }
 };
 
-export const pesTransacaoRota = async (req, res) => {
+export const pesUsuarioService = async (id) => {
   try {
-    let { limit, offset } = req.query;
+    const resultado = await transacao
+      .find({ Usuario: id })
+      .sort({ _id: -1 })
+      .populate("conta")
+      .populate("Usuario");
 
-    limit = Number(limit) || 15;
-    offset = Number(offset) || 0;
-
-    const transacao = await pestraService(limit, offset);
-    const total = await contarTranService();
-    const currentURL = req.baseUrl;
-
-    if (transacao.length === 0) {
-      return res
-        .status(400)
-        .send({ mensagem: "Não há transações registradas!" });
-    }
-
-    const avancar = offset + limit;
-    const avancarURL =
-      avancar < total
-        ? `${currentURL}?limit=${limit}&offset=${avancar}`
-        : "Sem registros!";
-    const anterior = offset - limit < 0 ? null : offset - limit;
-    const antigaURL =
-      anterior != null
-        ? `${currentURL}?limit=${limit}&offset=${anterior}`
-        : "Sem registros!";
-
-    res.send({
-      avancarURL,
-      antigaURL,
-      limit,
-      offset,
-      total,
-      results: transacao.map((item) => ({
-        id: item._id,
-        valor: item.valor,
-        data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
-        categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
-        conta: item.conta,
-        notas: item.notas,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
+    return resultado;
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    throw new Error("Erro ao processar a requisição.");
   }
 };
 
-export const pesquisaIDRota = async (req, res) => {
+export const atualizarTransService = async (id, atualizacao) => {
   try {
-    const { id } = req.params;
-
-    const transacao = await pesIDService(id);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
-    }
-
-    res.send({
-      transacao: {
-        id: transacao._id,
-        valor: transacao.valor,
-        data: transacao.data,
-        descricao: transacao.descricao,
-        tipoTransacao: transacao.tipoTransacao,
-        categoria: transacao.categoria,
-        formaPagamento: transacao.formaPagamento,
-        conta: transacao.conta,
-        notas: transacao.notas,
-        usuario: transacao.Usuario
-          ? transacao.Usuario
-          : "Usuário não encontrado!",
-      },
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-export const pesDescricaoRota = async (req, res) => {
-  try {
-    const { descricao } = req.query;
-
-    const transacao = await pesqDescricaoService(descricao);
-
-    if (transacao.length === 0) {
-      return res
-        .status(400)
-        .send({ mensagem: "Transação não localizada no servidor!" });
-    }
-
-    res.send({
-      results: transacao.map((item) => ({
-        id: item._id,
-        valor: item.valor,
-        data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
-        categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
-        conta: item.conta,
-        notas: item.notas,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-export const pesDescricaoRotaId = async (req, res) => {
-  try {
-    const { descricao } = req.query;
-
-    const transacao = await pesqDescricaoService(descricao, req.UsuarioId);
-
-    if (transacao.length === 0) {
-      return res
-        .status(400)
-        .send({ mensagem: "Transação não localizada no servidor!" });
-    }
-
-    res.send({
-      results: transacao.map((item) => ({
-        id: item._id,
-        valor: item.valor,
-        data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
-        categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
-        conta: item.conta,
-        notas: item.notas,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-export const pesUsuarioRota = async (req, res) => {
-  try {
-    const id = req.UsuarioId;
-
-    const transacao = await pesUsuarioService(id);
-
-    res.send({
-      results: transacao.map((item) => ({
-        id: item._id,
-        valor: item.valor,
-        data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
-        categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
-        conta: item.conta,
-        notas: item.notas,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};
-
-export const atualizarTrans = async (req, res) => {
-  try {
-    const {
-      valor,
-      data,
-      descricao,
-      tipoTransacao,
-      categoria,
-      formaPagamento,
-      conta,
-      notas,
-      categoriaPersonalizada,
-    } = req.body;
-    const { id } = req.params;
-
-    const tiposValidos = ["Despesa", "Receita"];
-    if (!tiposValidos.includes(tipoTransacao)) {
-      return res.status(400).send({ mensagem: "Tipo de transação inválido!" });
-    }
-
-    const transacao = await pesIDService(id);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
-    }
-
-    const camposAlterados = Object.keys(req.body).filter(
-      (key) => req.body[key] !== transacao[key]
+    const resultado = await transacao.findOneAndUpdate(
+      { _id: id },
+      { ...atualizacao },
+      { rawResult: true }
     );
 
-    if (camposAlterados.length === 0) {
-      return res.status(400).send({ mensagem: "Faça ao menos uma alteração!" });
-    }
-
-    await atualizarTransService(
-      id,
-      valor,
-      data,
-      descricao,
-      tipoTransacao,
-      categoria,
-      formaPagamento,
-      conta,
-      notas,
-      categoriaPersonalizada
-    );
-
-    const saldo = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
-
-    res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
+    return resultado;
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    throw new Error("Erro ao processar a requisição.");
   }
 };
 
-export const deletarTrans = async (req, res) => {
+export const deletarTransService = async (id) => {
   try {
-    const { id } = req.params;
+    const resultado = await transacao.findOneAndDelete({ _id: id });
 
-    const objectId = mongoose.Types.ObjectId.isValid(id)
-      ? new mongoose.Types.ObjectId(id)
-      : null;
-    if (!objectId) {
-      return res.status(400).send({ mensagem: "ID de transação inválido" });
-    }
-
-    const transacao = await pesIDService(objectId);
-    if (!transacao) {
-      return res.status(404).send({ mensagem: "Transação não encontrada" });
-    }
-
-    if (transacao.Usuario._id.toString() != req.UsuarioId) {
-      return res.status(403).send({
-        mensagem: "Você não tem permissão para deletar essa transação",
-      });
-    }
-
-    await deletarTransService(objectId);
-
-    res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
+    return resultado;
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    throw new Error("Erro ao processar a requisição.");
   }
 };
