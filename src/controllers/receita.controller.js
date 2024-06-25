@@ -8,10 +8,15 @@ import {
 import { calcularSaldo } from "./saldo.controller.js";
 import Usuario from "../models/Usuario.js";
 import Receita from "../models/receita.js";
-/* import { atualizarSaldo } from './saldo.controller.js'; */
 import Conta from "../models/conta.js";
 import { criartranService } from "../services/transacao.service.js";
 import mongoose from "mongoose";
+import categoriaTransacao from "../models/categoriaTransacao.js"; // Corrigido para categoriaTransacao
+
+// Função para remover acentos e padronizar string
+const removerAcentos = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
 
 export const criarReceita = async (req, res) => {
   try {
@@ -19,16 +24,14 @@ export const criarReceita = async (req, res) => {
 
     // Verifique se todos os campos obrigatórios estão presentes
     if (!valor || !conta || conta === "") {
-      return res
-        .status(400)
-        .send({
-          mensagem: "Por favor, preencha todos os campos obrigatórios!",
-        });
+      return res.status(400).send({
+        mensagem: "Por favor, preencha todos os campos obrigatórios!",
+      });
     }
 
     // Verificar se o usuário e a conta existem no banco de dados
-    const usuarioExistente = await Usuario.findById(req.UsuarioId);
-    if (!usuarioExistente) {
+    const UsuarioExistente = await Usuario.findById(req.UsuarioId);
+    if (!UsuarioExistente) {
       return res.status(404).send({ mensagem: "Usuário não encontrado!" });
     }
 
@@ -37,13 +40,30 @@ export const criarReceita = async (req, res) => {
       return res.status(404).send({ mensagem: "Conta não encontrada!" });
     }
 
+    // Busca ou cria a categoria de forma case-insensitive e sem acentos
+    let categoriaObj = await categoriaTransacao.findOne({
+      tipo: { $regex: new RegExp(`^${removerAcentos(categoria)}$`, "i") },
+    });
+
+    if (!categoriaObj) {
+      console.log(`Categoria "${categoria}" não encontrada. Tentando criar...`);
+
+      categoriaObj = new categoriaTransacao({
+        tipo: categoria,
+        Usuario: req.UsuarioId,
+      });
+
+      await categoriaObj.save();
+      console.log('Categoria criada:', categoriaObj);
+    }
+
     const novaReceita = new Receita({
       valor,
       descricao,
       data,
-      categoria,
-      usuario: req.UsuarioId, // Referenciando o ID do usuário
-      conta, // Referenciando o ID da conta
+      categoria: categoriaObj._id,
+      Usuario: req.UsuarioId,
+      conta,
     });
 
     await novaReceita.save();
@@ -56,80 +76,31 @@ export const criarReceita = async (req, res) => {
       tipoTransacao: "receita",
       categoria: novaReceita.categoria,
       conta: novaReceita.conta,
-      usuario: novaReceita.usuario,
+      Usuario: novaReceita.Usuario,
     });
 
     // Calcular e atualizar o saldo do usuário
     const saldo = await calcularSaldo(req.UsuarioId);
     await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
 
-    res
-      .status(200)
-      .send({
-        mensagem: "Uma nova receita foi criada!",
-        receita: novaReceita,
-        transacao,
-      });
+    res.status(200).send({
+      mensagem: "Uma nova receita foi criada!",
+      receita: novaReceita,
+      transacao,
+    });
   } catch (error) {
-    console.error(error); // Adicionando log de erro para facilitar a depuração
+    console.error(error);
     res.status(500).send({ message: error.message });
   }
 };
 
-/* export const criarReceita = async (req, res) => {
-  try {
-    console.log('Requisição recebida para criar uma nova receita:', req.body);
-
-    const { descricao, valor, data, categoria, contaId } = req.body;
-
-    if (!descricao || !valor || !data || !categoria || !contaId) {
-      console.log('Campos obrigatórios não preenchidos:', req.body);
-      return res
-        .status(400)
-        .send({ mensagem: 'Por favor, preencha todos os campos!' });
-    }
-
-    console.log('Dados da receita a ser criada:', {
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta: contaId,
-      usuario: req.UsuarioId,
-    });
-
-    const novaReceita = new Receita({
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta: contaId,
-      usuario: req.UsuarioId,
-    });
-
-    console.log('Nova receita criada:', novaReceita);
-
-    const receitaSalva = await novaReceita.save();
-
-    console.log('Receita salva no banco de dados:', receitaSalva);
-
-    // Atualizar o saldo do usuário
-    await atualizarSaldo(req.UsuarioId);
-
-    res.status(200).send({ mensagem: 'Uma Nova receita foi feita!', receita: receitaSalva });
-  } catch (error) {
-    console.error('Erro ao criar receita:', error);
-    res.status(500).send({ message: error.message });
-  }
-}; */
-
 /* Função que retorna para o usuário todas as receitas que estão na sua conta */
 export const pesReceitaRota = async (req, res) => {
   try {
-    const usuarioId = req.UsuarioId;
+    const UsuarioId = req.UsuarioId;
 
     // Chama o serviço para obter todas as receitas do usuário, populando os usuários associados
-    const receitas = await pesReceitasPorUsuarioIdService(usuarioId);
+    const receitas = await pesReceitasPorUsuarioIdService(UsuarioId);
 
     // Formata as receitas para enviar na resposta
     const resultadosFormatados = receitas.map((receita) => ({
@@ -139,7 +110,7 @@ export const pesReceitaRota = async (req, res) => {
       data: receita.data,
       categoria: receita.categoria,
       conta: receita.conta,
-      usuario: receita.Usuario
+      Usuario: receita.Usuario
         ? receita.Usuario.nome
         : "Usuário não encontrado!", // Exemplo: supondo que o usuário tenha um campo 'nome'
     }));
@@ -149,6 +120,7 @@ export const pesReceitaRota = async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 };
+
 /* Função para pesquisar a receita pelo id */
 export const receitaId = async (req, res) => {
   try {
@@ -166,7 +138,7 @@ export const receitaId = async (req, res) => {
       data: receita.data,
       categoria: receita.categoria,
       conta: receita.conta,
-      usuario: receita.Usuario ? receita.Usuario : "Usuário não encontrado!",
+      Usuario: receita.Usuario ? receita.Usuario : "Usuário não encontrado!",
     });
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -191,7 +163,7 @@ export const receitaDescricaoRota = async (req, res) => {
         data: item.data,
         categoria: item.categoria,
         conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+        Usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
       })),
     });
   } catch (error) {

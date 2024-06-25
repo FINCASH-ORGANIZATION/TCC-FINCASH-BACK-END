@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const despesaSchema = new mongoose.Schema({
+const DespesaSchema = new mongoose.Schema({
   descricao: {
     type: String,
     required: true,
@@ -29,6 +29,6 @@ const despesaSchema = new mongoose.Schema({
   },
 });
 
-const Despesa = mongoose.model("despesa", despesaSchema);
+const Despesa = mongoose.model("Despesa", DespesaSchema);
 
 export default Despesa;

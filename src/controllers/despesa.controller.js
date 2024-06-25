@@ -12,6 +12,12 @@ import Conta from "../models/conta.js";
 import mongoose from "mongoose";
 
 // Função para criar despesa
+// Função para remover acentos e caracteres especiais
+// Função para remover acentos e caracteres especiais
+const removerAcentos = (texto) => {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
 export const criarDespesa = async (req, res) => {
   try {
     const { descricao, valor, data, categoria, contaId } = req.body; // Aqui estou assumindo que o ID da conta é enviado como 'contaId'
@@ -43,46 +49,37 @@ export const criarDespesa = async (req, res) => {
         .send({ mensagem: "Saldo insuficiente para realizar a despesa!" });
     }
 
+    // Remove acentos e caracteres especiais da descrição
+    const descricaoSemAcentos = removerAcentos(descricao);
+
     // Cria a nova despesa
     const novaDespesa = await criarDespesaService({
-      descricao,
+      descricao: descricaoSemAcentos,
       valor,
       data,
       categoria,
       conta: contaId,
-      usuario: req.UsuarioId,
+      Usuario: req.UsuarioId,
     });
 
-    console.log("Nova despesa criada:", novaDespesa); // Log da nova despesa criada
-
-    // Atualiza o saldo do usuário subtraindo o valor da despesa
-    const novoSaldo = saldoAtual - valor;
-    await Usuario.findOneAndUpdate(
-      { _id: req.UsuarioId },
-      { $set: { saldo: novoSaldo } },
-      { new: true }
-    );
-
-    console.log("Saldo atualizado:", novoSaldo); // Log do saldo atualizado
-
-    res
-      .status(200)
-      .send({ mensagem: "Uma nova despesa foi feita!", despesa: novaDespesa });
+    // Restante do código para retornar sucesso, erro, etc.
+    return res.status(200).send({ mensagem: "Despesa criada com sucesso!" });
   } catch (error) {
-    console.error("Erro ao criar despesa:", error); // Log de erro
-    res.status(500).send({ mensagem: error.message });
+    console.error("Erro ao criar despesa:", error);
+    return res.status(500).send({ mensagem: "Erro interno ao criar despesa!" });
   }
 };
+
 
 
 /* Função que retorna todas as despesas que estão na sua conta */
 
 export const pesDespesaRota = async (req, res) => {
   try {
-    const usuarioId = req.UsuarioId;
+    const UsuarioId = req.UsuarioId;
 
     // Chama o serviço para obter todas as despesas do usuário, passando o ID do usuário
-    const despesas = await pesDespesaService(usuarioId);
+    const despesas = await pesDespesaService(UsuarioId);
 
     // Verifica se encontrou despesas para o usuário
     if (!despesas || despesas.length === 0) {
@@ -92,15 +89,15 @@ export const pesDespesaRota = async (req, res) => {
     }
 
     // Formata as despesas para enviar na resposta
-    const resultadosFormatados = despesas.map((despesa) => ({
-      id: despesa._id,
-      descricao: despesa.descricao,
-      valor: despesa.valor,
-      data: despesa.data,
-      categoria: despesa.categoria,
-      conta: despesa.conta,
-      usuario: despesa.Usuario
-        ? despesa.Usuario.nome
+    const resultadosFormatados = despesas.map((Despesa) => ({
+      id: Despesa._id,
+      descricao: Despesa.descricao,
+      valor: Despesa.valor,
+      data: Despesa.data,
+      categoria: Despesa.categoria,
+      conta: Despesa.conta,
+      Usuario: Despesa.Usuario
+        ? Despesa.Usuario.nome
         : "Usuário não encontrado!", // Exemplo: supondo que o usuário tenha um campo 'nome'
     }));
 
@@ -113,19 +110,19 @@ export const despesaId = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const despesa = await pesDespesaIdService(id);
-    if (!despesa) {
+    const Despesa = await pesDespesaIdService(id);
+    if (!Despesa) {
       return res.status(404).send({ mensagem: "Despesa não encontrada" });
     }
 
     res.send({
-      id: despesa._id,
-      descricao: despesa.descricao,
-      valor: despesa.valor,
-      data: despesa.data,
-      categoria: despesa.categoria,
-      conta: despesa.conta,
-      usuario: despesa.Usuario ? despesa.Usuario : "Usuário não encontrado!",
+      id: Despesa._id,
+      descricao: Despesa.descricao,
+      valor: Despesa.valor,
+      data: Despesa.data,
+      categoria: Despesa.categoria,
+      conta: Despesa.conta,
+      Usuario: Despesa.Usuario ? Despesa.Usuario : "Usuário não encontrado!",
     });
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -150,7 +147,7 @@ export const despesaDescricaoRota = async (req, res) => {
         data: item.data,
         categoria: item.categoria,
         conta: item.conta,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
+        Usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
       })),
     });
   } catch (error) {

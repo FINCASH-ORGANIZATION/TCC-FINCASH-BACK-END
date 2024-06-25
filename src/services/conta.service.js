@@ -13,3 +13,4 @@ export const pesContaIdService = (id) => Conta.findById(id).populate('Usuario');
 
 // Função para deletar uma Conta
 export const deletarContaService = (id) => Conta.findByIdAndDelete({ _id: id });
+
