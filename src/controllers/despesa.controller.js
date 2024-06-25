@@ -74,34 +74,6 @@ export const criarDespesa = async (req, res) => {
   }
 };
 
-/* Função criar despesa */
-/* export const criarDespesa = async (req, res) => {
-  try {
-    const { descricao, valor, data, categoria, conta } = req.body;
-
-    if (!descricao || !valor || !data || !categoria || !conta) {
-      return res
-        .status(400)
-        .send({ mensagem: "Por favor, preencha todos os campos!" });
-    }
-
-    const novaDespesa = await criarDespesaService({
-      descricao,
-      valor,
-      data,
-      categoria,
-      conta,
-      Usuario: req.UsuarioId,
-    });
-
-    const saldo = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
-
-    res.status(200).send({ mensagem: "Uma Nova despesa foi feita!", despesa: novaDespesa });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-}; */
 
 /* Função que retorna todas as despesas que estão na sua conta */
 
