@@ -23,18 +23,18 @@ const transacaoSchema = new mongoose.Schema({
     ref: "categoriaTransacao",
     required: true,
   },
-  /* formaPagamento: {
+  formaPagamento: {
     type: String,
     required: false,
-  }, */
+  },
   conta: {
     type: String,
     required: true,
   },
-  /* notas: {
+  notas: {
     type: String,
     default: null,
-  }, */
+  },
   Usuario: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Usuario",

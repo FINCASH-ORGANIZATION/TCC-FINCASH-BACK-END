@@ -29,15 +29,17 @@ export const criarTransacaoRota = async (req, res) => {
       categoriaPersonalizada,
     } = req.body;
 
+    // Verifica se todos os campos necessários foram fornecidos na requisição
     if (!valor || !data || !tipoTransacao || !categoria || !conta) {
       return res
         .status(400)
-        .send({ mensagem: "Por favor, preencha todos os campos!" });
+        .send({ mensagem: "Por favor, preencha todos os campos obrigatórios!" });
     }
 
     let categoriaObj;
 
-    if (categoria === "Outros" && categoriaPersonalizada) {
+    // Verifica se a categoria é "Outros" e se uma categoria personalizada foi fornecida
+    if (categoria.toLowerCase() === "outros" && categoriaPersonalizada) {
       categoriaObj = new categoriaTransacao({
         tipo: categoria,
         categoriaPersonalizada,
@@ -46,35 +48,49 @@ export const criarTransacaoRota = async (req, res) => {
 
       await categoriaObj.save();
     } else {
-      categoriaObj = await categoriaTransacao.findOne({ tipo: categoria });
+      // Busca a categoria no banco de dados utilizando expressão regular para ignorar maiúsculas e minúsculas
+      categoriaObj = await categoriaTransacao.findOne({ tipo: { $regex: new RegExp(`^${categoria}$`, 'i') } });
 
       if (!categoriaObj) {
-        return res.status(400).send({ mensagem: "Categoria inválida!" });
+        console.log(`Categoria "${categoria}" não encontrada. Tentando criar...`);
+
+        categoriaObj = new categoriaTransacao({
+          tipo: categoria,
+          Usuario: req.UsuarioId,
+        });
+
+        await categoriaObj.save();
+        console.log('Categoria criada:', categoriaObj);
       }
     }
 
+    // Cria a nova transação
     const novaTransacao = await criartranService({
       valor,
       data,
       descricao,
       tipoTransacao,
       categoria: categoriaObj._id,
-      categoriaPersonalizada,
       formaPagamento,
       conta,
       notas,
       Usuario: req.UsuarioId,
     });
 
-    const saldo = await calcularSaldo(req.UsuarioId);
-    await Usuario.findByIdAndUpdate(req.UsuarioId, { saldo });
+    // Busca a transação completa (incluindo detalhes da categoria e do usuário)
+    const transacaoCompleta = await transacao.findById(novaTransacao._id)
+      .populate('categoria')
+      .populate('Usuario');
 
-    res.status(200).send({
-      mensagem: "Uma Nova transação foi feita!",
-      transacao: novaTransacao,
+    // Retorna a resposta de sucesso com os detalhes da transação criada
+    return res.status(201).send({
+      mensagem: "Transação criada com sucesso",
+      transacao: transacaoCompleta,
     });
+
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    console.error('Erro ao criar transação:', error);
+    return res.status(500).send({ mensagem: "Erro ao processar a transação." });
   }
 };
 
@@ -85,6 +101,8 @@ export const pesTransacaoRota = async (req, res) => {
 
     limit = Number(limit) || 15;
     offset = Number(offset) || 0;
+
+    console.log(`Pesquisando transações com limit=${limit}, offset=${offset}`);
 
     const transacao = await pestraService(limit, offset);
     const total = await contarTranService();
@@ -128,6 +146,7 @@ export const pesTransacaoRota = async (req, res) => {
       })),
     });
   } catch (error) {
+    console.error('Erro ao pesquisar transações:', error);
     res.status(500).send({ message: error.message });
   }
 };
@@ -136,6 +155,8 @@ export const pesTransacaoRota = async (req, res) => {
 export const pesquisaIDRota = async (req, res) => {
   try {
     const { id } = req.params;
+
+    console.log(`Pesquisando transação com ID=${id}`);
 
     const transacao = await pesIDService(id);
     if (!transacao) {
@@ -159,46 +180,12 @@ export const pesquisaIDRota = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('Erro ao pesquisar transação por ID:', error);
     res.status(500).send({ message: error.message });
   }
 };
 
-/* Função que permite pesquisar a transação de acordo com a descrição que o usuário deu a ela */
-/*export const pesDescricaoRota = async (req, res) => {
-  try {
-    const { descricao } = req.query;
-
-    console.log("Descrição recebida:", descricao);
-
-    const transacao = await pesqDescricaoService(descricao);
-
-    console.log("Resultados da pesquisa:", transacao);
-
-    if (transacao.length === 0) {
-      return res
-        .status(400)
-        .send({ mensagem: "Transação não localizada no servidor!" });
-    }
-
-    res.send({
-      results: transacao.map((item) => ({
-        id: item._id,
-        valor: item.valor,
-        data: item.data,
-        descricao: item.descricao,
-        tipoTransacao: item.tipoTransacao,
-        categoria: item.categoria,
-        formaPagamento: item.formaPagamento,
-        conta: item.conta,
-        notas: item.notas,
-        usuario: item.Usuario ? item.Usuario : "Usuário não encontrado!",
-      })),
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-};*/
-
+/* Função para pesquisar a transação de acordo com a descrição */
 export const pesDescricaoRotaId = async (req, res) => {
   try {
     const { descricao } = req.query;
@@ -232,15 +219,17 @@ export const pesDescricaoRotaId = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error("Erro ao pesquisar transação:", error);
+    console.error("Erro ao pesquisar transação por descrição:", error);
     res.status(500).send({ message: error.message });
   }
 };
 
-/* Função que retorna para o usuário todas as transações que estão na sua conta */
+/* Função que retorna todas as transações do usuário */
 export const pesUsuarioRota = async (req, res) => {
   try {
     const id = req.UsuarioId;
+
+    console.log(`Pesquisando transações do usuário com ID=${id}`);
 
     const transacao = await pesUsuarioService(id);
 
@@ -259,11 +248,12 @@ export const pesUsuarioRota = async (req, res) => {
       })),
     });
   } catch (error) {
+    console.error('Erro ao pesquisar transações do usuário:', error);
     res.status(500).send({ message: error.message });
   }
 };
 
-/* Função para o usuário atualizar os dados de dentro da transação que ele estiver manipulando */
+/* Função para atualizar os dados da transação */
 export const atualizarTrans = async (req, res) => {
   try {
     const {
@@ -279,6 +269,9 @@ export const atualizarTrans = async (req, res) => {
     } = req.body;
     const { id } = req.params;
 
+    console.log(`Atualizando transação com ID=${id}`);
+    console.log('Dados recebidos para atualização:', req.body);
+
     const tiposValidos = ["Despesa", "Receita"];
     if (!tiposValidos.includes(tipoTransacao)) {
       return res.status(400).send({ mensagem: "Tipo de transação inválido!" });
@@ -288,10 +281,6 @@ export const atualizarTrans = async (req, res) => {
     if (!transacao) {
       return res.status(404).send({ mensagem: "Transação não encontrada" });
     }
-
-    /* if (transacao.Usuario._id.toString() !== req.UsuarioId) {
-            return res.status(403).send({ mensagem: 'Você não tem permissão para atualizar essa transação' });
-        } */
 
     const camposAlterados = Object.keys(req.body).filter(
       (key) => req.body[key] !== transacao[key]
@@ -319,14 +308,17 @@ export const atualizarTrans = async (req, res) => {
 
     res.status(200).send({ mensagem: "Transação atualizada com sucesso!" });
   } catch (error) {
+    console.error('Erro ao atualizar transação:', error);
     res.status(500).send({ mensagem: error.message });
   }
 };
 
-/* Função para deletar as transação */
+/* Função para deletar as transações */
 export const deletarTrans = async (req, res) => {
   try {
     const { id } = req.params;
+
+    console.log(`Deletando transação com ID=${id}`);
 
     const objectId = mongoose.Types.ObjectId.isValid(id)
       ? new mongoose.Types.ObjectId(id)
@@ -350,6 +342,7 @@ export const deletarTrans = async (req, res) => {
 
     res.status(200).send({ mensagem: "Transação deletada com sucesso!" });
   } catch (error) {
+    console.error('Erro ao deletar transação:', error);
     res.status(500).send({ message: error.message });
   }
 };
