@@ -5,7 +5,7 @@ Este é o código-fonte e a documentação do meu Trabalho de Conclusão de Curs
 
 </br>
 
-<kbd> ![image](https://github.com/borges-leo/TCC-FINCASH-FRONT-END/blob/main/src/assets/untitled.JPG) </kbd>
+<kbd> ![image](https://github.com/FINCASH-ORGANIZATION/TCC-FINCASH-FRONT-END/blob/main/src/assets/untitled.JPG) </kbd>
 
 > O FinCash é uma plataforma web desenvolvida com a poderosa combinação de ReactJS para o frontend, Javascript + Express para o backend, e MongoDB como banco de dados. Esta aplicação proporciona uma interface amigável e intuitiva, ideal para ajudar usuários a otimizar sua gestão financeira pessoal de maneira eficiente e organizada.
 
